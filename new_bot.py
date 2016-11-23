@@ -15,7 +15,7 @@ import threading
 from random import randint
 import pymysql
 from retrying import retry
-from config import ALLTESTS, ADMIN_ID, TOKEN, botan_token
+from config import ALLTESTS, ADMIN_ID, TOKEN, botan_token, MYSQL_CONN
 
 
 logger = logging.getLogger(__name__)
@@ -78,8 +78,7 @@ SHORTENER_URL = 'https://api.botan.io/s/'
 
 class MYSQL():
     def __init__(self):
-        self.connection = pymysql.connect(host='127.0.0.1', user='root', passwd='1236', db='hse_bot',
-                                          charset='utf8', init_command='SET NAMES UTF8', connect_timeout=20)
+        self.connection = pymysql.connect(**MYSQL_CONN)
         self.cursor = self.connection.cursor()
 
 
