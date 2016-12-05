@@ -6,12 +6,11 @@ import datetime
 import re
 import time
 from retrying import retry
-
+from config import MYSQL_CONN
 
 class MYSQL():
     def __init__(self):
-        self.connection = pymysql.connect(host='127.0.0.1', user='root', passwd='1236', db='hse_bot',
-                                          charset='utf8', init_command='SET NAMES UTF8', connect_timeout=20)
+        self.connection = pymysql.connect(**MYSQL_CONN)
         self.cursor = self.connection.cursor()
 
     def create_table_users(self):
