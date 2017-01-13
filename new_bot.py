@@ -203,15 +203,21 @@ def parsing_lessons(schedule, upd_type='week'):
             for lesson in d['Lessons']:
                 if lesson['dayOfWeekString'] == day:
                     if lesson['beginLesson'] in lessons_number:
-                        schedule_lessons += lessons_number[lesson['beginLesson']] + '\r\n' + lesson['kindOfWork'] + '\r\n' + lesson['lecturer'] + '\r\n' + lesson['discipline'] + '\r\n' + \
+                        schedule_lessons += lessons_number[lesson['beginLesson']] + '\r\n' + \
                                             lesson['beginLesson'] + '-' + lesson['endLesson'] + '\r\n'
                     else:
-                        schedule_lessons += lesson['kindOfWork'] + '\r\n' + lesson['lecturer'] + '\r\n' + lesson['discipline'] + '\r\n' + \
-                                            lesson['beginLesson'] + '-' + lesson['endLesson'] + '\r\n'
+                        schedule_lessons += lesson['beginLesson'] + '-' + lesson['endLesson'] + '\r\n'
+
+                    if lesson.get('kindOfWork'):
+                        schedule_lessons += lesson['kindOfWork'] + '\r\n'
+                    if lesson.get('auditorium'):
+                        schedule_lessons += 'Аудитория <b>' + lesson['auditorium'] + '</b>\r\n'
+                    if lesson.get('lecturer'):
+                        schedule_lessons += lesson['lecturer'] + '\r\n'
+                    if lesson.get('discipline'):
+                        schedule_lessons += lesson['discipline'] + '\r\n'
                     if lesson.get('building'):
                         schedule_lessons += lesson['building'] + '\r\n~~~~~~~~~~~~~\r\n'
-                    if lesson.get('auditorium'):
-                        schedule_lessons += lesson['auditorium'] + '\r\n'
 
             schedule_lessons = re.sub('[\\\\"]', '', schedule_lessons)
             if upd_type == 'week':
@@ -268,7 +274,7 @@ def start(bot, update):
                 mysql.update_schedule(days[day], schedule, from_id)
         print('Проапдейтил {}'.format(from_id))
         bot.sendMessage(chat_id, 'Хей, я тебя помню!\r\nВот клавиатура команд\r\nНо если ты хочешь поменять '
-                                 'email, то отправь мне /delete', reply_markup=reply_markup_commads)
+                                 'email, то отправь мне /delete', reply_markup=reply_markup_commads, parse_mode=ParseMode.HTML)
     else:
         bot.sendMessage(chat_id, text='Для начала мне нужно знать твою группу. Для этого вспомни и введи '
                                   'свою корпоративную почту :) Она заканчивается на @edu.hse.ru и '
@@ -537,10 +543,7 @@ dp.add_handler(CommandHandler('ok', help))
 dp.add_handler(CommandHandler('delete', delete_user))
 dp.add_handler(CommandHandler('delete@hseschedule_bot', delete_user))
 
-
-dp.add_handler(CommandHandler('cancel', cancel))
 dp.add_handler(CommandHandler('sendmessages', sendtoall))
-
 
 # Regex handlers will receive all updates on which their regex matches
 dp.add_handler(RegexHandler('Пары на сегодня', lessons_today))

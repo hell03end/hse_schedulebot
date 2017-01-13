@@ -100,16 +100,21 @@ def parsing_lessons(schedule, upd_type='week'):
             for lesson in d['Lessons']:
                 if lesson['dayOfWeekString'] == day:
                     if lesson['beginLesson'] in lessons_number:
-                        schedule_lessons += lessons_number[lesson['beginLesson']] + '\r\n' + lesson['kindOfWork'] + '\r\n' + lesson['lecturer'] + '\r\n' + lesson['discipline'] + '\r\n' + \
+                        schedule_lessons += lessons_number[lesson['beginLesson']] + '\r\n' + \
                                             lesson['beginLesson'] + '-' + lesson['endLesson'] + '\r\n'
                     else:
-                        schedule_lessons += lesson['kindOfWork'] + '\r\n' + lesson['lecturer'] + '\r\n' + lesson['discipline'] + '\r\n' + \
-                                            lesson['beginLesson'] + '-' + lesson['endLesson'] + '\r\n'
+                        schedule_lessons += lesson['beginLesson'] + '-' + lesson['endLesson'] + '\r\n'
 
+                    if lesson.get('kindOfWork'):
+                        schedule_lessons += lesson['kindOfWork'] + '\r\n'
+                    if lesson.get('auditorium'):
+                        schedule_lessons += 'Аудитория <b>' + lesson['auditorium'] + '</b>\r\n'
+                    if lesson.get('lecturer'):
+                        schedule_lessons += lesson['lecturer'] + '\r\n'
+                    if lesson.get('discipline'):
+                        schedule_lessons += lesson['discipline'] + '\r\n'
                     if lesson.get('building'):
                         schedule_lessons += lesson['building'] + '\r\n~~~~~~~~~~~~~\r\n'
-                    if lesson.get('auditorium'):
-                        schedule_lessons += lesson['auditorium'] + '\r\n'
 
             schedule_lessons = re.sub('[\\\\"]', '', schedule_lessons)
             if upd_type == 'week':
