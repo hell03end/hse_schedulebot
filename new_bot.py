@@ -204,12 +204,15 @@ def parsing_lessons(schedule, upd_type='week'):
                 if lesson['dayOfWeekString'] == day:
                     if lesson['beginLesson'] in lessons_number:
                         schedule_lessons += lessons_number[lesson['beginLesson']] + '\r\n' + lesson['kindOfWork'] + '\r\n' + lesson['lecturer'] + '\r\n' + lesson['discipline'] + '\r\n' + \
-                                lesson['auditorium'] + '\r\n' + lesson['beginLesson'] + '-' + lesson['endLesson'] + '\r\n' + \
-                                lesson['building'] + '\r\n~~~~~~~~~~~~~\r\n'
+                                            lesson['beginLesson'] + '-' + lesson['endLesson'] + '\r\n'
                     else:
                         schedule_lessons += lesson['kindOfWork'] + '\r\n' + lesson['lecturer'] + '\r\n' + lesson['discipline'] + '\r\n' + \
-                                 lesson['auditorium'] + '\r\n' + lesson['beginLesson'] + '-' + lesson['endLesson'] + '\r\n' + \
-                                 lesson['building'] + '\r\n~~~~~~~~~~~~~\r\n'
+                                            lesson['beginLesson'] + '-' + lesson['endLesson'] + '\r\n'
+                    if lesson.get('building'):
+                        schedule_lessons += lesson['building'] + '\r\n~~~~~~~~~~~~~\r\n'
+                    if lesson.get('auditorium'):
+                        schedule_lessons += lesson['auditorium'] + '\r\n'
+
             schedule_lessons = re.sub('[\\\\"]', '', schedule_lessons)
             if upd_type == 'week':
                 if schedule_lessons == '':
@@ -506,12 +509,6 @@ def sendtoall(bot, update):
                 continue
         mysql.close_conn()
         print('Всем отправил')
-
-
-def cancel(bot, update):
-    if update.message.from_user.id == ADMIN_ID:
-        sendtoall_set.clear()
-        bot.sendMessage(ADMIN_ID, 'Отменил')
 
 
 def pong(bot, update):
