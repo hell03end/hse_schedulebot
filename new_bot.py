@@ -426,7 +426,7 @@ def lessons_week(bot, update):
 
     mysql = MYSQL()
     msg = mysql.lessons_dayofweek(days_to_eng[text], from_id)
-    bot.sendMessage(chat_id, msg[0], reply_markup=reply_markup_commads_week)
+    bot.sendMessage(chat_id, msg[0], reply_markup=reply_markup_commads_week, parse_mode=ParseMode.HTML)
     mysql.close_conn()
 
 
@@ -531,45 +531,57 @@ def need_update():
             time.sleep(60)
 
 
-print('Бот запущен')
-updater = Updater(TOKEN, workers=10)
+if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        token = sys.argv[-1]
+        if token.lower() == 'prod':
+            updater = Updater(TOKEN)
+            logging.basicConfig(filename=BASE_DIR + '/out.log',
+                                filemode='w',
+                                format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                                level=logging.INFO)
+    else:
+        updater = Updater(ALLTESTS)
+        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                            level=logging.DEBUG)
+    print('Бот запущен')
 
-dp = updater.dispatcher
+    dp = updater.dispatcher
 
-# COMMANDS
-dp.add_handler(CommandHandler('start', start))
-dp.add_handler(CommandHandler('help', help))
-dp.add_handler(CommandHandler('ok', help))
-dp.add_handler(CommandHandler('delete', delete_user))
-dp.add_handler(CommandHandler('delete@hseschedule_bot', delete_user))
+    # COMMANDS
+    dp.add_handler(CommandHandler('start', start))
+    dp.add_handler(CommandHandler('help', help))
+    dp.add_handler(CommandHandler('ok', help))
+    dp.add_handler(CommandHandler('delete', delete_user))
+    dp.add_handler(CommandHandler('delete@hseschedule_bot', delete_user))
 
-dp.add_handler(CommandHandler('sendmessages', sendtoall))
+    dp.add_handler(CommandHandler('sendmessages', sendtoall))
 
-# Regex handlers will receive all updates on which their regex matches
-dp.add_handler(RegexHandler('Пары на сегодня', lessons_today))
-dp.add_handler(RegexHandler('Пары на завтра', lessons_tmrw))
-dp.add_handler(RegexHandler('Связаться с админом', admin_contacts))
-dp.add_handler(RegexHandler('Пары на неделю', week_days_choice))
-dp.add_handler(RegexHandler('Надо ли мне на пары?', random_answer))
-dp.add_handler(RegexHandler('.пасиб.*', nvmnd))
-dp.add_handler(RegexHandler('Назад', return_keyboard))
-dp.add_handler(RegexHandler('Баш', bash_quote))
-dp.add_handler(RegexHandler('[pP]ing', pong))
-dp.add_handler(RegexHandler('[ПВСЧ][отреяу][ноетб][ердвнб][днаеио][еирцт]?[лкга]?(ьник)?', lessons_week))
-
-
-# String handlers work pretty much the same
-# dp.addStringCommandHandler('reply', cli_reply)
-
-dp.add_handler(RegexHandler('.*@edu.hse.ru', new_user))
-
-# All TelegramErrors are caught for you and delivered to the error
-# handler(s). Other types of Errors are not caught.
-
-# Start the Bot and store the update Queue, so we can insert updates
-update_queue = updater.start_polling()
+    # Regex handlers will receive all updates on which their regex matches
+    dp.add_handler(RegexHandler('Пары на сегодня', lessons_today))
+    dp.add_handler(RegexHandler('Пары на завтра', lessons_tmrw))
+    dp.add_handler(RegexHandler('Связаться с админом', admin_contacts))
+    dp.add_handler(RegexHandler('Пары на неделю', week_days_choice))
+    dp.add_handler(RegexHandler('Надо ли мне на пары?', random_answer))
+    dp.add_handler(RegexHandler('.пасиб.*', nvmnd))
+    dp.add_handler(RegexHandler('Назад', return_keyboard))
+    dp.add_handler(RegexHandler('Баш', bash_quote))
+    dp.add_handler(RegexHandler('[pP]ing', pong))
+    dp.add_handler(RegexHandler('[ПВСЧ][отреяу][ноетб][ердвнб][днаеио][еирцт]?[лкга]?(ьник)?', lessons_week))
 
 
-upd_need = threading.Thread(target=need_update)
+    # String handlers work pretty much the same
+    # dp.addStringCommandHandler('reply', cli_reply)
 
-upd_need.start()
+    dp.add_handler(RegexHandler('.*@edu.hse.ru', new_user))
+
+    # All TelegramErrors are caught for you and delivered to the error
+    # handler(s). Other types of Errors are not caught.
+
+    # Start the Bot and store the update Queue, so we can insert updates
+    update_queue = updater.start_polling()
+
+
+    upd_need = threading.Thread(target=need_update)
+
+    upd_need.start()
