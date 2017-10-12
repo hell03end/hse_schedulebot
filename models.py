@@ -1,8 +1,9 @@
-from peewee import *
 from datetime import datetime
+
 from config import PG_CONN
-from playhouse.shortcuts import RetryOperationalError
+from peewee import *
 from playhouse.pool import PostgresqlDatabase
+from playhouse.shortcuts import RetryOperationalError
 
 
 class MyRetryDB(RetryOperationalError, PostgresqlDatabase):

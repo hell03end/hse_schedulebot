@@ -1,12 +1,15 @@
-import pymysql
-import threading
-import requests
-import json
 import datetime
+import json
 import re
+import threading
 import time
-from retrying import retry
+
+import pymysql
+import requests
+
 from config import MYSQL_CONN
+from retrying import retry
+
 
 class MYSQL():
     def __init__(self):
@@ -19,7 +22,8 @@ class MYSQL():
 
     def insert_lesson(self, chatid, mon, tue, wed, thu, fri, sat, sun):
         query = 'INSERT INTO lessons VALUES ({}, "{}", "{}", "{}", ' \
-                '"{}", "{}", "{}", "{}")'.format(chatid, mon, tue, wed, thu, fri, sat, sun)
+                '"{}", "{}", "{}", "{}")'.format(
+                    chatid, mon, tue, wed, thu, fri, sat, sun)
         self.cursor.execute(query)
         self.connection.commit()
         return True
@@ -31,7 +35,8 @@ class MYSQL():
         return True
 
     def search_lessons_chatid(self, chat_id):
-        query = 'SELECT Mon, Tue, Wed, Thu, Fri, Sat, Sun FROM lessons WHERE chat_id="{}"'.format(chat_id)
+        query = 'SELECT Mon, Tue, Wed, Thu, Fri, Sat, Sun FROM lessons WHERE chat_id="{}"'.format(
+            chat_id)
         self.cursor.execute(query)
         return self.cursor.fetchall()
 
@@ -58,12 +63,14 @@ class MYSQL():
         return self.cursor.fetchall()
 
     def update_schedule(self, column, lesson, chat_id):
-        query = 'UPDATE lessons SET {}="{}" WHERE chat_id={}'.format(column, lesson, chat_id)
+        query = 'UPDATE lessons SET {}="{}" WHERE chat_id={}'.format(
+            column, lesson, chat_id)
         self.cursor.execute(query)
         self.connection.commit()
 
     def lessons_dayofweek(self, day, chat_id):
-        query = 'SELECT {} FROM lessons WHERE chat_id="{}"'.format(day, chat_id)
+        query = 'SELECT {} FROM lessons WHERE chat_id="{}"'.format(
+            day, chat_id)
         self.cursor.execute(query)
         return self.cursor.fetchone()
 
@@ -73,7 +80,8 @@ class MYSQL():
 
 days_rus = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 
-days = {'Пн': 'Mon', 'Вт': 'Tue', 'Ср': 'Wed', 'Чт': 'Thu', 'Пт': 'Fri', 'Сб': 'Sat', 'Вс': 'Sun'}
+days = {'Пн': 'Mon', 'Вт': 'Tue', 'Ср': 'Wed',
+        'Чт': 'Thu', 'Пт': 'Fri', 'Сб': 'Sat', 'Вс': 'Sun'}
 
 lessons_number = {'09:00': '1 пара', '10:30': '2 пара', '12:10': '3 пара',
                   '13:40': '4 пара', '15:10': '5 пара', '16:40': '6 пара',
@@ -85,7 +93,8 @@ lessons_number = {'09:00': '1 пара', '10:30': '2 пара', '12:10': '3 па
 
 
 def addition_days(n):
-    addition_days = str(datetime.datetime.now() + datetime.timedelta(days=n))[:10]
+    addition_days = str(datetime.datetime.now() +
+                        datetime.timedelta(days=n))[:10]
     return addition_days.replace('-', '.')
 
 
@@ -101,20 +110,24 @@ def parsing_lessons(schedule, upd_type='week'):
                 if lesson['dayOfWeekString'] == day:
                     if lesson['beginLesson'] in lessons_number:
                         schedule_lessons += lessons_number[lesson['beginLesson']] + '\r\n' + \
-                                            lesson['beginLesson'] + '-' + lesson['endLesson'] + '\r\n'
+                            lesson['beginLesson'] + '-' + \
+                            lesson['endLesson'] + '\r\n'
                     else:
-                        schedule_lessons += lesson['beginLesson'] + '-' + lesson['endLesson'] + '\r\n'
+                        schedule_lessons += lesson['beginLesson'] + \
+                            '-' + lesson['endLesson'] + '\r\n'
 
                     if lesson.get('kindOfWork'):
                         schedule_lessons += lesson['kindOfWork'] + '\r\n'
                     if lesson.get('auditorium'):
-                        schedule_lessons += 'Аудитория <b>' + lesson['auditorium'] + '</b>\r\n'
+                        schedule_lessons += 'Аудитория <b>' + \
+                            lesson['auditorium'] + '</b>\r\n'
                     if lesson.get('lecturer'):
                         schedule_lessons += lesson['lecturer'] + '\r\n'
                     if lesson.get('discipline'):
                         schedule_lessons += lesson['discipline'] + '\r\n'
                     if lesson.get('building'):
-                        schedule_lessons += lesson['building'] + '\r\n~~~~~~~~~~~~~\r\n'
+                        schedule_lessons += lesson['building'] + \
+                            '\r\n~~~~~~~~~~~~~\r\n'
 
             schedule_lessons = re.sub('[\\\\"]', '', schedule_lessons)
             if upd_type == 'week':
@@ -148,7 +161,8 @@ def collect_urls(from_date, to_date):
     mysql = MYSQL()
     for _id, chat_id, email, dt in mysql.search_all('users'):
         url = 'http://92.242.58.221/ruzservice.svc/v2/' \
-              'personlessons?fromdate={}&todate={}&email={}'.format(from_date, to_date, email)
+              'personlessons?fromdate={}&todate={}&email={}'.format(
+                  from_date, to_date, email)
         urls.append((url, email, chat_id))
     mysql.close_conn()
     print('Собрал все ссылки')
@@ -164,5 +178,6 @@ def run_upd():
             time.sleep(3)
             c = 0
     print('done')
+
 
 run_upd()

@@ -1,10 +1,9 @@
 import emoji
+from logger import log
+from models import Users
 from telegram import ReplyKeyboardMarkup
 from telegram.ext import CommandHandler
-
 from utils.keyboards import start_keyboard
-from models import Users
-from logger import log
 
 
 @log

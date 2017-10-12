@@ -1,11 +1,9 @@
 import logging
 import sys
 
-from telegram.ext import Updater
-from telegram import Bot
-
 from config import TOKENS
-
+from telegram import Bot
+from telegram.ext import Updater
 
 bot = Bot(TOKENS['TEST'])
 
