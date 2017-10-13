@@ -28,7 +28,7 @@ class Users(BaseModel):
 
 class Lessons(BaseModel):
     student = ForeignKeyField(Users,
-                              to_field='telegrma_id',
+                              to_field='telegram_id',
                               on_update='CASCADE',
                               db_column='student_tg_id')
     monday = CharField()
