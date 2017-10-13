@@ -1,0 +1,1 @@
+DAY_OF_WEEK = 'DAY_OF_WEEK'

@@ -23,9 +23,11 @@ if __name__ == '__main__':
                             level=logging.DEBUG)
 
     from service import common_handlers
+    from schedule import week_schedule
 
     dp = updater.dispatcher
     common_handlers.register(dp)
+    week_schedule.register(dp)
 
     updater.start_polling()
     updater.idle()
