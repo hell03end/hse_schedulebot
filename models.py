@@ -59,9 +59,21 @@ def del_tables():
             t.drop_table()
 
 
-def save(data, db_name):
+def save(data, table_name):
+    """
+
+    :param data:list, required. A list of dicts: Each dict must correlate
+    with field_name of the given table
+    :param table_name: object, required. a class of a table
+    :return: None
+
+    Example:
+    table_name: Lessons,
+    data = [{'monday': '', 'tuesday':''…}, {…}]
+    """
+
     with db.atomic():
-        db_name.insert_many(data).upsert().execute()
+        table_name.insert_many(data).upsert().execute()
     return True
 
 
