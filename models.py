@@ -1,12 +1,8 @@
+from peewee import *
 from datetime import datetime
-from collections import Collection
-
 from config import PG_CONN
-from mixins import LoggerMixin
-from peewee import (CharField, DateTimeField, ForeignKeyField, IntegerField,
-                    Model, PrimaryKeyField)
-from playhouse.pool import PostgresqlDatabase
 from playhouse.shortcuts import RetryOperationalError
+from playhouse.pool import PostgresqlDatabase
 
 
 class MyRetryDB(RetryOperationalError, PostgresqlDatabase):
@@ -31,12 +27,10 @@ class Users(BaseModel):
 
 
 class Lessons(BaseModel):
-    student = ForeignKeyField(
-        Users,
-        to_field='telegrma_id',
-        on_update='CASCADE',
-        db_column='student_tg_id'
-    )
+    student = ForeignKeyField(Users,
+                              to_field='telegram_id',
+                              on_update='CASCADE',
+                              db_column='student_tg_id')
     monday = CharField()
     tuesday = CharField()
     wednesday = CharField()
@@ -47,63 +41,44 @@ class Lessons(BaseModel):
     upd_dt = DateTimeField()
 
 
-TABLES = [
+tables = [
     Users,
     Lessons
 ]
 
 
-class DBManager(LoggerMixin):
-    ''' Handle db actions with ability to log them '''
+def init_db():
+    for t in tables:
+        print(t)
+        t.create_table()
 
-    def __init__(self, db: ..., tables: Collection, **kwargs):
-        self.db = db
-        self.tables = list(tables)  # to make field mutable
-        super(DBManager, self).__init__(**kwargs)
 
-    def create(self) -> None:
-        ''' Create all tables '''
-        for table in self.tables:
-            self._logger.info("create %s", table)
-            table.create_table()
+def del_tables():
+    for t in reversed(tables):
+        if t.table_exists():
+            t.drop_table()
 
-    def drop(self) -> None:
-        ''' Remove all tables '''
-        for table in reversed(self.tables):
-            if table.table_exists():
-                self._logger.info("drop %s", table)
-                table.drop_table()
 
-    def init(self, rebase: bool=True) -> None:
-        if rebase:
-            try:
-                self.drop()
-                self._logger.info("Tables [%s] dropped", self.tables)
-            except BaseException as excinfo:
-                self._logger.error(excinfo)
-        try:
-            self.create()
-            self._logger.info("Tables [%s] created", self.tables)
-        except BaseException as excinfo:
-            self._logger.error(excinfo)
+def save(data, table_name):
+    """
 
-    def save(self, data: list, table_name: object) -> None:
-        '''
-            Upsert (insert many rows for some condition) database.
+    :param data:list, required. A list of dicts: Each dict must correlate
+    with field_name of the given table
+    :param table_name: object, required. a class of a table
+    :return: None
 
-            :param data: list, required. A list of dicts: Each dict must
-                correlate with field_name of the given table
-            :param table_name: object, required. a class of a table
-            :return None
+    Example:
+    table_name: Lessons,
+    data = [{'monday': '', 'tuesday':''…}, {…}]
+    """
 
-            Example:
-                table_name: Lessons,
-                data = [{'monday': '', 'tuesday':''…}, {…}]
-        '''
-        with self.db.atomic():
-            table_name.insert_many(data).upsert().execute()
+    with db.atomic():
+        table_name.insert_many(data).upsert().execute()
+    return True
 
 
 if __name__ == '__main__':
-    db_manager = DBManager(db, TABLES)
-    db_manager.init()
+    del_tables()
+    print('Таблицы удалил')
+    init_db()
+    print('Таблицы создал')
