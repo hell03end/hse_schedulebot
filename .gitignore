@@ -1,5 +1,6 @@
 config.py
 schedule/
+tmp/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
