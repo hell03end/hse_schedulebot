@@ -1,82 +1,13 @@
+import requests
+from multiprocessing import Pool
+import json
 import datetime
 import json
 import re
 import threading
 import time
 
-import pymysql
-import requests
-
-from config import MYSQL_CONN
-from retrying import retry
-
-
-class MYSQL():
-    def __init__(self):
-        self.connection = pymysql.connect(**MYSQL_CONN)
-        self.cursor = self.connection.cursor()
-
-    def create_table_users(self):
-        self.table = 'CREATE TABLE users (chat_id INTEGER, EMAIL TEXT)'
-        self.cursor.execute(self.table)
-
-    def insert_lesson(self, chatid, mon, tue, wed, thu, fri, sat, sun):
-        query = 'INSERT INTO lessons VALUES ({}, "{}", "{}", "{}", ' \
-                '"{}", "{}", "{}", "{}")'.format(
-                    chatid, mon, tue, wed, thu, fri, sat, sun)
-        self.cursor.execute(query)
-        self.connection.commit()
-        return True
-
-    def insert_user(self, chat_id, email):
-        query = 'INSERT INTO users VALUES ({}, "{}")'.format(chat_id, email)
-        self.cursor.execute(query)
-        self.connection.commit()
-        return True
-
-    def search_lessons_chatid(self, chat_id):
-        query = 'SELECT Mon, Tue, Wed, Thu, Fri, Sat, Sun FROM lessons WHERE chat_id="{}"'.format(
-            chat_id)
-        self.cursor.execute(query)
-        return self.cursor.fetchall()
-
-    def delete_lessons(self, chat_id):
-        query = 'DELETE FROM lessons WHERE chat_id="{}"'.format(chat_id)
-        self.cursor.execute(query)
-        self.connection.commit()
-        return True
-
-    def delete_user(self, chat_id):
-        query = 'DELETE FROM users WHERE chat_id="{}"'.format(chat_id)
-        self.cursor.execute(query)
-        self.connection.commit()
-        return True
-
-    def search_all(self, table):
-        query = 'SELECT * FROM {}'.format(table)
-        self.cursor.execute(query)
-        return self.cursor.fetchall()
-
-    def search_user_chatid(self, chatid):
-        query = 'SELECT * FROM users WHERE chat_id="{}"'.format(chatid)
-        self.cursor.execute(query)
-        return self.cursor.fetchall()
-
-    def update_schedule(self, column, lesson, chat_id):
-        query = 'UPDATE lessons SET {}="{}" WHERE chat_id={}'.format(
-            column, lesson, chat_id)
-        self.cursor.execute(query)
-        self.connection.commit()
-
-    def lessons_dayofweek(self, day, chat_id):
-        query = 'SELECT {} FROM lessons WHERE chat_id="{}"'.format(
-            day, chat_id)
-        self.cursor.execute(query)
-        return self.cursor.fetchone()
-
-    def close_conn(self):
-        self.connection.close()
-
+from models import Users, Lessons
 
 days_rus = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 
@@ -141,7 +72,6 @@ def parsing_lessons(schedule, upd_type='week'):
     return False
 
 
-@retry(stop_max_attempt_number=3)
 def downlaod_html(urls):
     for _ in range(3):
         page = requests.get(urls[0]).content.decode('utf8')
@@ -169,15 +99,6 @@ def collect_urls(from_date, to_date):
     return urls
 
 
-def run_upd():
-    c = 0
-    for data in collect_urls(addition_days(0), addition_days(6)):
-        threading.Thread(target=downlaod_html, args=(data,)).start()
-        c += 1
-        if c == 20:
-            time.sleep(3)
-            c = 0
-    print('done')
-
-
-run_upd()
+if __name__ == '__main__':
+    p = Pool(20)
+    p.map(get_and_save, get_all_emails)
