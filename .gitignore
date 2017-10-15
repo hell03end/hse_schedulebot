@@ -1,4 +1,3 @@
-config.py
 schedule/
 .vscode/
 tmp/
@@ -94,4 +93,3 @@ ENV/
 .ropeproject
 .idea/
 hse/
-config.py
