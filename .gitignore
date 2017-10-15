@@ -1,3 +1,4 @@
+.idea/
 .vscode/
 tmp/
 
@@ -90,5 +91,3 @@ ENV/
 
 # Rope project settings
 .ropeproject
-.idea/
-hse/
