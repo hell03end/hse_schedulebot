@@ -36,13 +36,13 @@ class Lessons(BaseModel):
         on_update='CASCADE',
         db_column='student_tg_id'
     )
-    monday = TextField()
-    tuesday = TextField()
-    wednesday = TextField()
-    thursday = TextField()
-    friday = TextField()
-    saturday = TextField()
-    sunday = TextField()
+    monday = TextField(null=True)
+    tuesday = TextField(null=True)
+    wednesday = TextField(null=True)
+    thursday = TextField(null=True)
+    friday = TextField(null=True)
+    saturday = TextField(null=True)
+    sunday = TextField(null=True)
     upd_dt = DateTimeField()
 
 
