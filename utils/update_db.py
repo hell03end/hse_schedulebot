@@ -2,10 +2,11 @@ from collections import Collection, Generator, Iterable
 from datetime import datetime as dt
 from multiprocessing import Pool
 
-from models import Lessons, Users
+from models import Lessons, Users, save_to_db
 from ruz import RUZ
 
 from utils.schema import MESSAGE_SCHEMA, POST_SCHEMA, TABLE_MAPPING
+
 
 DAYS = {
     0: "Undefined",
@@ -87,13 +88,26 @@ def format_schedule(schedule: Collection) -> list:
 
 def update_schedules(schedules: (list, tuple), email: str) -> None:
     """ format and save (update) schedules to database """
+    lessons_data = []
+    email, = email
     for schedule in schedules:
-        if not schedule:
-            continue
-        schedule = format_schedule(schedule)
+        print(email)
         student = Users.get(email=email)
+        if not schedule:
+            l, _ = Lessons.get_or_create(student=student)
+            l.delete_instance()
+            continue
+
+        schedule = format_schedule(schedule)
+
         lessons = dict(zip(TABLE_MAPPING, schedule))
-        Lessons.create(student=student, upd_dt=dt.now(), **lessons)
+        lessons.update({
+            'student': student,
+        })
+        lessons_data.append(lessons)
+    if lessons_data:
+        # because of None in weekdays it doesnt work
+        save_to_db(lessons_data, Lessons)
 
 
 def get_and_save(emails: (Collection, str)) -> None:
