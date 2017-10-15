@@ -31,13 +31,13 @@ class Lessons(BaseModel):
                               to_field='telegram_id',
                               on_update='CASCADE',
                               db_column='student_tg_id')
-    monday = CharField()
-    tuesday = CharField()
-    wednesday = CharField()
-    thursday = CharField()
-    friday = CharField()
-    saturday = CharField()
-    sunday = CharField()
+    monday = TextField()
+    tuesday = TextField()
+    wednesday = TextField()
+    thursday = TextField()
+    friday = TextField()
+    saturday = TextField()
+    sunday = TextField()
     upd_dt = DateTimeField()
 
 
