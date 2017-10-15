@@ -1,33 +1,37 @@
 import logging
 import sys
+from argparse import ArgumentParser, Namespace
 
-from telegram.ext import Updater
-from telegram import Bot
-
+import schedule
+import service
 from config import TOKENS
+from telegram import Bot
+from telegram.ext import Updater
+
+
+def parse_argv() -> Namespace:
+    parser = ArgumentParser(description="Starts telegram bot for lessons "
+                                        "schedule in HSE")
+    parser.add_argument('--token', '-t', type=str, default="TEST",
+                        help="api token name (from config) for access to bot")
+    return parser.parse_args()
 
 
 bot = Bot(TOKENS['TEST'])
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
+
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        token = sys.argv[-1].upper()
-        if token in TOKENS:
-            updater = Updater(TOKENS[token])
-            bot = Bot(TOKENS[token])
-            logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                                level=logging.INFO)
-    else:
-        updater = Updater(TOKENS['TEST'])
-        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                            level=logging.DEBUG)
+    args = parse_argv()
+    token = TOKENS.get(args.token.upper(), TOKENS["TEST"])
+    updater = Updater(token)
+    bot = Bot(token)
 
-    from service import common_handlers
-    from schedule import week_schedule
-
-    dp = updater.dispatcher
-    common_handlers.register(dp)
-    week_schedule.register(dp)
+    service.register(updater.dispatcher)
+    schedule.register(updater.dispatcher)
 
     updater.start_polling()
     updater.idle()

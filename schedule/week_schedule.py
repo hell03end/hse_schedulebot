@@ -1,30 +1,27 @@
-from telegram import ParseMode, ReplyKeyboardMarkup
-from telegram.ext import ConversationHandler, RegexHandler, \
-    Filters, MessageHandler, CommandHandler
-
-from states import *
-from utils.keyboards import week_keybord, start_keyboard
-from utils.functions import is_cancelled
-from service.common_handlers import start
-from models import Lessons
+from emoji import emojize
 from logger import log
-import emoji
+from models import Lessons
+from service.common_handlers import start
+from telegram import ParseMode, ReplyKeyboardMarkup
+from telegram.ext import (CommandHandler, ConversationHandler, Filters,
+                          MessageHandler, RegexHandler)
+from utils import DAY_OF_WEEK, START_KEYBOARD, WEEK_KEYBOARD, is_cancelled
 
 
 @log
-def on_week(bot, update):
-    calendar = emoji.emojize(':tear-off_calendar:')
+def on_week(bot: object, update: object) -> str:
+    calendar = emojize(':tear-off_calendar:')
     uid = update.message.from_user.id
     bot.send_message(
         uid,
         f'Выбери день недели {calendar}',
-        reply_markup=ReplyKeyboardMarkup(week_keybord)
+        reply_markup=ReplyKeyboardMarkup(WEEK_KEYBOARD)
     )
     return DAY_OF_WEEK
 
 
 @log
-def choose_dow(bot, update):
+def choose_dow(bot: object, update: object) -> None:
     uid = update.message.from_user.id
     chat_id = update.message.chat.id
     message = update.message.text
@@ -32,7 +29,7 @@ def choose_dow(bot, update):
         bot.send_message(
             uid,
             'Вот предыдущее меню',
-            reply_markup=ReplyKeyboardMarkup(start_keyboard)
+            reply_markup=ReplyKeyboardMarkup(START_KEYBOARD)
         )
 
     lessons = Lessons.get(Lessons.student.telegram_id == uid)
@@ -43,26 +40,20 @@ def choose_dow(bot, update):
     }
     if message == 'Понедельник':
         send_params['text'] = lessons.monday
-
     elif message == 'Вторник':
         send_params['text'] = lessons.tuesday,
-
     elif message == 'Среда':
         send_params['text'] = lessons.wednesday,
-
     elif message == 'Четверг':
         send_params['text'] = lessons.thursday,
-
     elif message == 'Пятница':
         send_params['text'] = lessons.friday,
-
     elif message == 'Суббота':
         send_params['text'] = lessons.saturday
-
     bot.send_message(**send_params)
 
 
-def register(dp):
+def register(dispatcher: object) -> None:
     week_schedule = ConversationHandler(
         entry_points=[RegexHandler('На неделю', on_week)],
         states={
@@ -70,4 +61,4 @@ def register(dp):
         },
         fallbacks=[CommandHandler('start', start)]
     )
-    dp.add_handler(week_schedule)
+    dispatcher.add_handler(week_schedule)
