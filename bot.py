@@ -18,10 +18,7 @@ def parse_argv() -> Namespace:
 
 
 bot = Bot(TOKENS['TEST'])
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
+LOGGING_LEVELS = {"TEST": logging.INFO}
 
 
 if __name__ == '__main__':
@@ -29,6 +26,10 @@ if __name__ == '__main__':
     token = TOKENS.get(args.token.upper(), TOKENS["TEST"])
     updater = Updater(token)
     bot = Bot(token)
+    logging.basicConfig(
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        level=LOGGING_LEVELS.get(token, logging.DEBUG)
+    )
 
     service.register(updater.dispatcher)
     schedule.register(updater.dispatcher)
