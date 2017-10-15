@@ -1,7 +1,6 @@
-from collections import Callable, Collection, Generator
-from datetime import datetime, timedelta
+from collections import Collection, Generator, Iterable
+from datetime import datetime
 from multiprocessing import Pool
-from typing import Iterable
 
 from models import Lessons, Users
 from ruz import RUZ
