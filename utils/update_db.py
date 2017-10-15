@@ -1,11 +1,11 @@
 from collections import Collection, Generator, Iterable
-from datetime import datetime
+from datetime import datetime as dt
 from multiprocessing import Pool
 
 from models import Lessons, Users
 from ruz import RUZ
 
-from utils.schema import MESSAGE_SCHEMA, POST_SCHEMA
+from utils.schema import MESSAGE_SCHEMA, POST_SCHEMA, TABLE_MAPPING
 
 DAYS = {
     0: "Undefined",
@@ -31,7 +31,7 @@ LESSONS_NUMBER = {
 }
 
 
-api = RUZ(strict_v1=True)
+api = RUZ(strict_v1=True, base_url='http://92.242.58.221/ruzservice.svc/')
 
 
 def get_emails() -> Generator:
@@ -81,7 +81,7 @@ def format_schedule(schedule: Collection) -> list:
         days[lesson['dayOfWeek'] - 1].append(lesson)
     lessons = [[] for _ in range(7)]
     for idx, day in enumerate(days):
-        lessons[idx] = format_day_schedule(day) if day else ""
+        lessons[idx] = format_day_schedule(day) if day else None
     return lessons
 
 
@@ -92,20 +92,11 @@ def update_schedules(schedules: (list, tuple), email: str) -> None:
             continue
         schedule = format_schedule(schedule)
         student = Users.get(email=email)
-        lesson = Lessons.get_or_create(student=student)
-
-        lesson.monday = schedule[0]
-        lesson.tuesday = schedule[1]
-        lesson.wednesday = schedule[2]
-        lesson.thursday = schedule[3]
-        lesson.friday = schedule[4]
-        lesson.saturday = schedule[5]
-        lesson.sunday = schedule[6]
-        lesson.upd_dt = datetime.now()
-        lesson.save()
+        lessons = dict(zip(TABLE_MAPPING, schedule))
+        Lessons.create(student=student, upd_dt=dt.now(), **lessons)
 
 
-def get_and_save(emails: Collection or str) -> None:
+def get_and_save(emails: (Collection, str)) -> None:
     """ pipeline for getting and saving schedules """
     if isinstance(emails, str):
         emails = [emails]
@@ -113,5 +104,5 @@ def get_and_save(emails: Collection or str) -> None:
 
 
 if __name__ == '__main__':
-    pool = Pool(1)
-    pool.map(get_and_save, get_emails(), chunksize=15)
+    pool = Pool(5)
+    pool.map(get_and_save, get_emails(), chunksize=35)

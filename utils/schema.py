@@ -10,6 +10,16 @@ LESSON_SCHEMA = {
     'dayOfWeek': int
 }
 
+TABLE_MAPPING = [
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+        'sunday'
+    ]
+
 MESSAGE_SCHEMA = \
     "{time}\n**{name}**\n__{type}__\n{teacher}\n{room}, `{place}`"
 
