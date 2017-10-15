@@ -24,7 +24,7 @@ class BaseModel(Model):
 
 class Users(BaseModel):
     telegram_id = IntegerField(unique=1)
-    username = CharField(unique=1)
+    username = CharField(null=True)
     email = CharField()
     dt = DateTimeField(default=datetime.now())
 
