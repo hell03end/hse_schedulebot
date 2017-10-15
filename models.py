@@ -3,7 +3,7 @@ from datetime import datetime
 
 from config import PG_CONN
 from peewee import (CharField, DateTimeField, ForeignKeyField, IntegerField,
-                    Model, PrimaryKeyField)
+                    Model, PrimaryKeyField, TextField)
 from playhouse.pool import PostgresqlDatabase
 from playhouse.shortcuts import RetryOperationalError
 
@@ -36,13 +36,13 @@ class Lessons(BaseModel):
         on_update='CASCADE',
         db_column='student_tg_id'
     )
-    monday = CharField()
-    tuesday = CharField()
-    wednesday = CharField()
-    thursday = CharField()
-    friday = CharField()
-    saturday = CharField()
-    sunday = CharField()
+    monday = TextField()
+    tuesday = TextField()
+    wednesday = TextField()
+    thursday = TextField()
+    friday = TextField()
+    saturday = TextField()
+    sunday = TextField()
     upd_dt = DateTimeField()
 
 
