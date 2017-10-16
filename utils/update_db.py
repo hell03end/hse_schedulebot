@@ -1,11 +1,12 @@
 from collections import Collection, Generator, Iterable
-from datetime import datetime
+from datetime import datetime as dt
 from multiprocessing import Pool
 
-from models import Lessons, Users
+from models import Lessons, Users, save_to_db
 from ruz import RUZ
 
-from .schema import MESSAGE_SCHEMA, POST_SCHEMA
+from utils.schema import MESSAGE_SCHEMA, POST_SCHEMA, TABLE_MAPPING
+
 
 DAYS = {
     0: "Undefined",
@@ -31,23 +32,24 @@ LESSONS_NUMBER = {
 }
 
 
-api = RUZ(strict_v1=True)
+api = RUZ(strict_v1=True, base_url='http://92.242.58.221/ruzservice.svc/')
 
 
 def get_emails() -> Generator:
-    ''' return emails from Users database '''
+    """ return emails from Users database """
     return map(lambda user: user.email, Users)
 
 
-def fetch_schedules(emails: Collection, api: object=api,
+def fetch_schedules(emails: Collection,
+                    api: object=api,
                     **kwargs) -> Generator:
-    ''' download schedule for each email '''
+    """ download schedule for each email """
     return map(lambda email: api.schedule(email, **kwargs), emails)
 
 
 def format_lessons(lessons: Collection,
                    schema: dict=MESSAGE_SCHEMA) -> Generator:
-    ''' apply correct message schema to lesson '''
+    """ apply correct message schema to lesson """
     for lesson in lessons:
         lesson_time = LESSONS_NUMBER.get(
             lesson.get('beginLesson'),
@@ -65,7 +67,7 @@ def format_lessons(lessons: Collection,
 
 def format_day_schedule(lessons: Iterable,
                         schema: dict=POST_SCHEMA) -> str:
-    ''' apply correct day schema to list of this day lessons '''
+    """ apply correct day schema to list of this day lessons """
     return schema.format(
         date=f"{DAYS[lessons[0].get('dayOfWeek', 0)]},"
              f"{lessons[0].get('date', '...')}",
@@ -74,46 +76,47 @@ def format_day_schedule(lessons: Iterable,
 
 
 def format_schedule(schedule: Collection) -> list:
-    ''' apply schema for all days with lessons in schedule '''
-    days = [[] for __ in range(7)]
+    """ apply schema for all days with lessons in schedule """
+    days = [[] for _ in range(7)]
     for lesson in schedule:
         days[lesson['dayOfWeek'] - 1].append(lesson)
-    lessons = [[] for __ in range(7)]
+    lessons = [[] for _ in range(7)]
     for idx, day in enumerate(days):
-        lessons[idx] = format_day_schedule(day) if day else ""
+        lessons[idx] = format_day_schedule(day) if day else None
     return lessons
 
 
-def format_schedules(schedules: Collection) -> Generator:
-    ''' apply formating of schedule for all schedules '''
+def update_schedules(schedules: (list, tuple), email: str) -> None:
+    """ format and save (update) schedules to database """
+    lessons_data = []
+    email, = email
     for schedule in schedules:
-        yield format_schedule(schedule)
-
-
-def update_schedules(schedules: (list, tuple), emails: (list, tuple)) -> None:
-    ''' save (update) schedules to database '''
-    for email, schedule in zip(emails, schedules):
+        print(email)
         student = Users.get(email=email)
-        try:
-            lesson = Lessons.get(student=student)
-        except BaseException:
-            lesson = Lessons(student=student)
-        lesson.monday = schedule[0]
-        lesson.tuesday = schedule[1]
-        lesson.wednesday = schedule[2]
-        lesson.thursday = schedule[3]
-        lesson.friday = schedule[4]
-        lesson.saturday = schedule[5]
-        lesson.sunday = schedule[6]
-        lesson.upd_dt = datetime.now()
-        lesson.save()
+        if not schedule:
+            l, _ = Lessons.get_or_create(student=student)
+            l.delete_instance()
+            continue
+
+        schedule = format_schedule(schedule)
+
+        lessons = dict(zip(TABLE_MAPPING, schedule))
+        lessons.update({
+            'student': student,
+        })
+        lessons_data.append(lessons)
+    if lessons_data:
+        # because of None in weekdays it doesnt work
+        save_to_db(lessons_data, Lessons)
 
 
-def get_and_save(emails: Iterable) -> None:
-    ''' pipeline for getting and saving schedules '''
-    update_schedules(format_schedules(fetch_schedules(emails)), emails)
+def get_and_save(emails: (Collection, str)) -> None:
+    """ pipeline for getting and saving schedules """
+    if isinstance(emails, str):
+        emails = [emails]
+    update_schedules(fetch_schedules(emails), emails)
 
 
 if __name__ == '__main__':
-    pool = Pool(20)
-    pool.map(get_and_save, get_emails())
+    pool = Pool(5)
+    pool.map(get_and_save, get_emails(), chunksize=35)

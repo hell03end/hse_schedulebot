@@ -8,11 +8,6 @@ from telegram.ext import (CallbackQueryHandler, CommandHandler,
                           RegexHandler)
 from utils import DAY_OF_WEEK
 
-# from egrul import (client_type, confirm_value, data_client, select_region,
-#                    solve_captcha)
-# from model import Clients, DoesNotExist, Tasks, Users
-# from utils import check_cancel_task, check_password, keyboard_ts, user_data
-
 
 def register(dispatcher: object) -> None:
     dispatcher.add_handler()

@@ -1,1 +1,1 @@
-from .common_handlers import register
+from service.common_handlers import register

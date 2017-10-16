@@ -1,5 +1,5 @@
 from collections import Collection
-from datetime import datetime
+from datetime import datetime as dt
 
 from config import PG_CONN
 from peewee import (CharField, DateTimeField, ForeignKeyField, IntegerField,
@@ -24,9 +24,9 @@ class BaseModel(Model):
 
 class Users(BaseModel):
     telegram_id = IntegerField(unique=1)
-    username = CharField(unique=1)
+    username = CharField(null=True)
     email = CharField()
-    dt = DateTimeField(default=datetime.now())
+    dt = DateTimeField(default=dt.now())
 
 
 class Lessons(BaseModel):
@@ -36,14 +36,14 @@ class Lessons(BaseModel):
         on_update='CASCADE',
         db_column='student_tg_id'
     )
-    monday = TextField()
-    tuesday = TextField()
-    wednesday = TextField()
-    thursday = TextField()
-    friday = TextField()
-    saturday = TextField()
-    sunday = TextField()
-    upd_dt = DateTimeField()
+    monday = TextField(null=True)
+    tuesday = TextField(null=True)
+    wednesday = TextField(null=True)
+    thursday = TextField(null=True)
+    friday = TextField(null=True)
+    saturday = TextField(null=True)
+    sunday = TextField(null=True)
+    upd_dt = DateTimeField(default=dt.now())
 
 
 TABLES = (Users, Lessons)
@@ -63,7 +63,7 @@ def drop_tables(tables: Collection) -> None:
             table.drop_table()
 
 
-def save(data: Collection, table: object) -> None:
+def save_to_db(data: Collection, table: object) -> None:
     """
         :param data - a collection of dicts: Each dict must correlate with
             field_name of the given table
