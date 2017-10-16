@@ -32,7 +32,7 @@ LESSONS_NUMBER = {
 }
 
 
-api = RUZ(strict_v1=True, base_url='http://92.242.58.221/ruzservice.svc/')
+api = RUZ()
 
 
 def get_emails() -> Generator:
@@ -89,9 +89,8 @@ def format_schedule(schedule: Collection) -> list:
 def update_schedules(schedules: (list, tuple), email: str) -> None:
     """ format and save (update) schedules to database """
     lessons_data = []
-    email, = email
+    email = email
     for schedule in schedules:
-        print(email)
         student = Users.get(email=email)
         if not schedule:
             l, _ = Lessons.get_or_create(student=student)
