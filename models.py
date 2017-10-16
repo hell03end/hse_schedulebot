@@ -63,20 +63,6 @@ def drop_tables(tables: Collection) -> None:
             table.drop_table()
 
 
-def save_to_db(data: Collection, table: object) -> None:
-    """
-        :param data - a collection of dicts: Each dict must correlate with
-            field_name of the given table
-        :param table - a class of a table
-
-        Example:
-        table: Lessons, data = [{'monday': '', 'tuesday':''…}, {…}]
-    """
-    with db.atomic():
-        if table.table_exists():
-            table.insert_many(data).upsert().execute()
-
-
 if __name__ == '__main__':
     drop_tables(TABLES)
     create_tables(TABLES)
