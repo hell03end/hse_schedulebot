@@ -3,7 +3,7 @@ from datetime import datetime as dt
 
 from config import PG_CONN
 from peewee import (CharField, DateTimeField, ForeignKeyField, IntegerField,
-                    Model, PrimaryKeyField, TextField)
+                    Model, PrimaryKeyField, TextField, BooleanField)
 from playhouse.pool import PostgresqlDatabase
 from playhouse.shortcuts import RetryOperationalError
 
@@ -26,6 +26,8 @@ class Users(BaseModel):
     telegram_id = IntegerField(unique=1)
     username = CharField(null=True)
     email = CharField()
+    is_student = BooleanField()
+    city = CharField(null=True)
     dt = DateTimeField(default=dt.now())
 
 
@@ -46,7 +48,12 @@ class Lessons(BaseModel):
     upd_dt = DateTimeField(default=dt.now())
 
 
-TABLES = (Users, Lessons)
+class Lecturers(BaseModel):
+    name = CharField()
+    # TODO: continue this list
+
+
+TABLES = (Users, Lessons, Lecturers)
 
 
 def create_tables(tables: Collection) -> None:
