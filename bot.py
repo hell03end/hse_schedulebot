@@ -1,5 +1,4 @@
 import logging
-import sys
 from argparse import ArgumentParser, Namespace
 
 import schedule
