@@ -26,7 +26,7 @@ class Users(BaseModel):
     telegram_id = IntegerField(unique=1)
     username = CharField(null=True)
     email = CharField()
-    is_student = BooleanField()
+    is_student = BooleanField(default=True)
     city = CharField(null=True)
     dt = DateTimeField(default=dt.now())
 
@@ -49,8 +49,9 @@ class Lessons(BaseModel):
 
 
 class Lecturers(BaseModel):
-    name = CharField()
-    # TODO: continue this list
+    fio = CharField(index=True)
+    chair = CharField()  # department in RUZ notation
+    lecturer_id = IntegerField(unique=True)
 
 
 TABLES = (Users, Lessons, Lecturers)
