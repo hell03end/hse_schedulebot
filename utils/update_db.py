@@ -1,35 +1,11 @@
 from collections import Collection, Generator, Iterable
 from multiprocessing import Pool
 
-from models import Lessons, Users
 from ruz import RUZ
 
-from utils.schema import MESSAGE_SCHEMA, POST_SCHEMA, TABLE_MAPPING
-
-
-DAYS = {
-    0: "Undefined",
-    1: "Пн",
-    2: "Вт",
-    3: "Ср",
-    4: "Чт",
-    5: "Пт",
-    6: "Сб",
-    7: "Вс"
-}
-
-LESSONS_NUMBER = {
-    '09:00': "1", '08:40': "1", '09:30': "1",
-    '10:30': "2", '11:10': "2", '10:00': "2", '10:35': "2",
-    '12:10': "3", '12:40': "3", '12:00': "3",
-    '13:40': "4",
-    '15:10': "5", '14:10': "5", '15:40': "5", '15:20': "5", '14:20': "5", '15:00': "5",
-    '16:40': "6", '16:50': "6", '16:00': "6", '15:50': "6",
-    '17:10': "6 7",
-    '18:10': "7", '18:20': "7",
-    '19:40': "8", '19:00': "8", '19:50': "8"
-}
-
+from models import Lessons, Users
+from utils.schema import (DAYS, LESSONS_TIMETABLE, MESSAGE_SCHEMA, POST_SCHEMA,
+                          TABLE_MAPPING)
 
 api = RUZ()
 
@@ -39,9 +15,7 @@ def get_emails() -> Generator:
     return map(lambda user: user.email, Users)
 
 
-def fetch_schedules(email: str,
-                    api: object=api,
-                    **kwargs) -> list:
+def fetch_schedule(email: str, api: object=api, **kwargs) -> list:
     """ download schedule for each email """
     return api.schedule(email, **kwargs)
 
@@ -50,12 +24,12 @@ def format_lessons(lessons: Collection,
                    schema: dict=MESSAGE_SCHEMA) -> Generator:
     """ apply correct message schema to lesson """
     for lesson in lessons:
-        lesson_time = LESSONS_NUMBER.get(
+        lesson_time = LESSONS_TIMETABLE.get(
             lesson.get('beginLesson'),
             f"{lesson.get('beginLesson')} - {lesson.get('endLesson')}"
         )
         yield schema.format(
-            time=f"{lesson_time} пара",
+            time=f"{lesson_time} Ð¿Ð°Ñ€Ð°",
             name=lesson.get('discipline', "Undefined"),
             type=lesson.get('kindOfWork', "Undefined"),
             teacher=lesson.get('lecturer', "Professor"),
@@ -100,7 +74,7 @@ def update_schedules(schedules: (list, tuple), email: str) -> None:
 
 def get_and_save(email: str) -> None:
     """ pipeline for getting and saving schedules """
-    update_schedules(fetch_schedules(email), email)
+    update_schedules(fetch_schedule(email), email)
 
 
 if __name__ == '__main__':
