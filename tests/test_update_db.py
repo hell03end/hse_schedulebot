@@ -1,6 +1,6 @@
 from . import (
     api, get_emails, fetch_schedules, format_lessons, format_day_schedule,
-    format_schedule, format_schedules, update_schedules, get_and_save, Users,
+    format_schedule, update_schedules, get_and_save, Users,
     Lessons, MESSAGE_SCHEMA, POST_SCHEMA
 )
 
@@ -22,9 +22,6 @@ class TestUpdateDB:
         pass
 
     def test_format_day_schedule(seflf):
-        pass
-
-    def test_format_schedule(seflf):
         pass
 
     def test_format_schedules(seflf):

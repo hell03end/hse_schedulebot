@@ -3,7 +3,7 @@ from datetime import datetime as dt
 
 from config import PG_CONN
 from peewee import (CharField, DateTimeField, ForeignKeyField, IntegerField,
-                    Model, PrimaryKeyField, TextField)
+                    Model, PrimaryKeyField, TextField, BooleanField)
 from playhouse.pool import PostgresqlDatabase
 from playhouse.shortcuts import RetryOperationalError
 
@@ -26,6 +26,8 @@ class Users(BaseModel):
     telegram_id = IntegerField(unique=1)
     username = CharField(null=True)
     email = CharField()
+    is_student = BooleanField()
+    city = CharField(null=True)
     dt = DateTimeField(default=dt.now())
 
 
@@ -46,7 +48,12 @@ class Lessons(BaseModel):
     upd_dt = DateTimeField(default=dt.now())
 
 
-TABLES = (Users, Lessons)
+class Lecturers(BaseModel):
+    name = CharField()
+    # TODO: continue this list
+
+
+TABLES = (Users, Lessons, Lecturers)
 
 
 def create_tables(tables: Collection) -> None:
@@ -61,20 +68,6 @@ def drop_tables(tables: Collection) -> None:
         if table.table_exists():
             print("drop table: {}".format(table))
             table.drop_table()
-
-
-def save_to_db(data: Collection, table: object) -> None:
-    """
-        :param data - a collection of dicts: Each dict must correlate with
-            field_name of the given table
-        :param table - a class of a table
-
-        Example:
-        table: Lessons, data = [{'monday': '', 'tuesday':''…}, {…}]
-    """
-    with db.atomic():
-        if table.table_exists():
-            table.insert_many(data).upsert().execute()
 
 
 if __name__ == '__main__':

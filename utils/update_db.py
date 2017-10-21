@@ -1,8 +1,7 @@
 from collections import Collection, Generator, Iterable
-from datetime import datetime as dt
 from multiprocessing import Pool
 
-from models import Lessons, Users, save_to_db
+from models import Lessons, Users
 from ruz import RUZ
 
 from utils.schema import MESSAGE_SCHEMA, POST_SCHEMA, TABLE_MAPPING
@@ -40,11 +39,11 @@ def get_emails() -> Generator:
     return map(lambda user: user.email, Users)
 
 
-def fetch_schedules(emails: Collection,
+def fetch_schedules(email: str,
                     api: object=api,
-                    **kwargs) -> Generator:
+                    **kwargs) -> list:
     """ download schedule for each email """
-    return map(lambda email: api.schedule(email, **kwargs), emails)
+    return api.schedule(email, **kwargs)
 
 
 def format_lessons(lessons: Collection,
@@ -88,32 +87,20 @@ def format_schedule(schedule: Collection) -> list:
 
 def update_schedules(schedules: (list, tuple), email: str) -> None:
     """ format and save (update) schedules to database """
-    lessons_data = []
-    email = email
-    for schedule in schedules:
-        student = Users.get(email=email)
-        if not schedule:
-            l, _ = Lessons.get_or_create(student=student)
-            l.delete_instance()
-            continue
+    student = Users.get(email=email)
+    lessons_obj, _ = Lessons.get_or_create(student=student)
+    if not schedules:
+        lessons_obj.delete_instance()
+        return
+    schedule = format_schedule(schedules)
 
-        schedule = format_schedule(schedule)
-
-        lessons = dict(zip(TABLE_MAPPING, schedule))
-        lessons.update({
-            'student': student,
-        })
-        lessons_data.append(lessons)
-    if lessons_data:
-        # because of None in weekdays it doesnt work
-        save_to_db(lessons_data, Lessons)
+    lessons = dict(zip(TABLE_MAPPING, schedule))
+    Lessons.update(**lessons).where(Lessons.id == lessons_obj.id).execute()
 
 
-def get_and_save(emails: (Collection, str)) -> None:
+def get_and_save(email: str) -> None:
     """ pipeline for getting and saving schedules """
-    if isinstance(emails, str):
-        emails = [emails]
-    update_schedules(fetch_schedules(emails), emails)
+    update_schedules(fetch_schedules(email), email)
 
 
 if __name__ == '__main__':
