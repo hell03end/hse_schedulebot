@@ -26,7 +26,7 @@ class TestUsers:
         self.emails = tuple(set(self.lecturers) | set(self.students))
 
     def test_add_users(self):
-        with test_database(db_test, [Users]):
+        with test_database(db_test, (Users, )):
             create_users()
             count_users = 0
             for user in Users:

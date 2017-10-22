@@ -32,7 +32,7 @@ class TestUpdateDB:
         self.emails = tuple(set(self.lecturers) | set(self.students))
 
     def test_get_emails(self):
-        with test_database(db_test, [Users]):
+        with test_database(db_test, (Users, )):
             create_users()
             emails = {email for email in get_emails()}
             assert emails == set(self.emails)
