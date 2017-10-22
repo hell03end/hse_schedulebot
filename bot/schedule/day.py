@@ -28,8 +28,8 @@ def on_day(bot: Bot, update: object, next_day: bool=False) -> int:
         )
         return ConversationHandler.END
 
-    user = Users.get(Users.telegram_id == uid)
-    lessons = Lessons.get(Lessons.student == user.id)
+    lessons = Lessons.select().join(Users).where(
+        Lessons.student == Users.telegram_id, Users.telegram_id == uid).get()
     send_params = {
         'chat_id': chat_id,
         'parse_mode': ParseMode.MARKDOWN

@@ -47,8 +47,8 @@ def choose_dow(bot: Bot, update: object) -> int:
         )
         return ConversationHandler.END
 
-    user = Users.get(Users.telegram_id == uid)
-    lessons = Lessons.get(Lessons.student == user.id)
+    lessons = Lessons.select().join(Users).where(
+        Lessons.student == Users.telegram_id, Users.telegram_id == uid).get()
     send_params = {
         'text': MESSAGES['choose_dow:ask'],
         'chat_id': chat_id,
