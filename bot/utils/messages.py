@@ -20,14 +20,21 @@ MESSAGES = {
         'on_week:ask': "Выбери день недели {}".format(
             emojize(':tear-off_calendar:')),
         'choose_dow:back': "Вот предыдущее меню.",
-        'choose_dow:ask': "Выбери вариант на клавиатуре."
+        'choose_dow:ask': "Выбери вариант на клавиатуре.",
+        'choose_dow:cancel': "Начнем с начала."
     },
     'schedule:day': {
         'on_day:back': "Вот предыдущее меню.",
-        'on_day:sunday': "Воскресенье, отдыхай :)"
+        'on_day:sunday': "Воскресенье, отдыхай :)",
+        'on_back:msg': "Вот предыдущее меню."
     },
     'models:update_schedules': {
-        'format_lesson:time': "{} пара."
+        'format_lesson:time': "{} пара.",
+        'format_schedule:empty': "Нет пар."
+    },
+    'schedule:start': {
+        'on_schedule:ask': "На какой день показывать?",
+        'on_back:msg': "Вот предыдущее меню."
     }
 }
 
