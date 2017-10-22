@@ -1,7 +1,9 @@
 import logging
+import sys
 from argparse import ArgumentParser, Namespace
 
 import bot
+from bot.models import update_schedules
 from config import TOKENS
 
 LOGGING_LEVELS = {
@@ -23,7 +25,7 @@ def parse_argv() -> Namespace:
 if __name__ == '__main__':
     args = parse_argv()
     if args.action == "update_schedules":
-        bot.models.update_schedules.main()
+        update_schedules.main()
     elif args.action == "init_db":
         bot.init_db()
         print("DONE")
@@ -32,3 +34,5 @@ if __name__ == '__main__':
             token=TOKENS.get(args.token.upper(), TOKENS["TEST"]),
             logger_level=LOGGING_LEVELS.get(args.token.upper(), logging.DEBUG)
         )
+    else:
+        print(f"Wrong command: {args.action}", file=sys.stderr)
