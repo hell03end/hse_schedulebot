@@ -1,23 +1,25 @@
 from multiprocessing import Pool
 from threading import Thread
 
+from bot.logger import log
+from bot.models import Users
+from bot.service.common_handlers import start
+from bot.utils.functions import is_cancelled
+from bot.utils.keyboards import BACK_KEY, MAILING_WHOM_KEYBOARD, START_KEYBOARD
+from bot.utils.messages import MESSAGES
+from bot.utils.states import PREPARE_MAILING, WHOM_TO_SEND
 from config import ADMINS
-from logger import log
-from models import Users
-from service.common_handlers import start
 from telegram import ParseMode, ReplyKeyboardMarkup
+from telegram.bot import Bot
 from telegram.ext import (CommandHandler, ConversationHandler, Filters,
                           MessageHandler, RegexHandler)
-from utils.functions import is_cancelled
-from utils.keyboards import BACK_KEY, MAILING_WHOM_KEYBOARD, START_KEYBOARD
-from utils.messages import MESSAGES
-from utils.states import PREPARE_MAILING, WHOM_TO_SEND
+from telegram.ext.dispatcher import Dispatcher
 
-MESSAGES = MESSAGES['mailing']
+MESSAGES = MESSAGES['service:mailing']
 
 
 @log
-def do_mailing(bot: object, recipients: object, msg: str, author: str) -> None:
+def do_mailing(bot: Bot, recipients: object, msg: str, author: str) -> None:
     pool = Pool(10)
     data = set()
     for recipient in recipients:
@@ -28,7 +30,7 @@ def do_mailing(bot: object, recipients: object, msg: str, author: str) -> None:
 
 
 @log
-def whom_to_send(bot: object, update: object, user_data: object) -> (int, str):
+def whom_to_send(bot: Bot, update: object, user_data: object) -> (int, str):
     uid = update.message.from_user.id
     if uid in ADMINS:
         send_params = {
@@ -44,7 +46,7 @@ def whom_to_send(bot: object, update: object, user_data: object) -> (int, str):
 
 
 @log
-def recipients(bot: object, update: object, user_data: object) -> (int, str):
+def recipients(bot: Bot, update: object, user_data: object) -> (int, str):
     uid = update.message.from_user.id
     message = update.message.text
     if is_cancelled(message):
@@ -70,7 +72,7 @@ def recipients(bot: object, update: object, user_data: object) -> (int, str):
 
 
 @log
-def prepare_mailing(bot: object, update: object,
+def prepare_mailing(bot: Bot, update: object,
                     user_data: object) -> (int, str):
     uid = update.message.from_user.id
     message = update.message.text
@@ -97,7 +99,7 @@ def prepare_mailing(bot: object, update: object,
     return ConversationHandler.END
 
 
-def register(dispatcher: object) -> None:
+def register(dispatcher: Dispatcher) -> None:
     start_admin = ConversationHandler(
         entry_points=[
             CommandHandler('mail', whom_to_send, pass_user_data=True)

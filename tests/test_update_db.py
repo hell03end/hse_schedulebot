@@ -2,16 +2,18 @@
 
 from ruz import RESPONSE_SCHEMA
 
+from bot.models import TABLES, Lessons, Users
+from bot.models.tools import create_tables, drop_tables
+from bot.models.update_schedules import (api, fetch_schedule,
+                                         format_day_schedule, format_lessons,
+                                         format_schedule, get_and_save,
+                                         get_emails, update_schedules)
+from bot.utils.schema import MESSAGE_SCHEMA, POST_SCHEMA
 from config import PG_CONN
-from models import TABLES, Lessons, Users, create_tables, drop_tables
 from peewee import PostgresqlDatabase
 from playhouse.test_utils import test_database
 from tests.commons import create_users
 from tests.fixtures import CORRECT_EMAILS, INCORRECT_EMAILS
-from utils.schema import MESSAGE_SCHEMA, POST_SCHEMA
-from utils.update_db import (api, fetch_schedule, format_day_schedule,
-                             format_lessons, format_schedule, get_and_save,
-                             get_emails, update_schedules)
 
 db_test = PostgresqlDatabase('test_db', **PG_CONN)
 

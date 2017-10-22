@@ -1,12 +1,12 @@
 import pytest
 
+from bot.models import TABLES, Lecturers, Lessons, MyRetryDB, Users
+from bot.models.tools import create_tables, drop_tables
+from bot.utils.schema import CITIES
 from config import PG_CONN
-from models import (TABLES, Lecturers, Lessons, MyRetryDB, Users,
-                    create_tables, drop_tables)
 from playhouse.test_utils import test_database
 from tests.commons import create_users
 from tests.fixtures import CORRECT_EMAILS, INCORRECT_EMAILS
-from utils.schema import CITIES
 
 db_test = MyRetryDB('test_db', **PG_CONN)
 

@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 
-from models import Users
+from bot.models import Users
 from tests.fixtures import CORRECT_EMAILS
 
 

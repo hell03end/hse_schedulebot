@@ -1,16 +1,14 @@
 import re
-import sys
-from collections import Collection
 from datetime import datetime as dt
 
 from ruz.utils import EMAIL_DOMAINS, EMAIL_PATTERN
 
+from bot.utils.schema import CITIES
 from config import PG_CONN
 from peewee import (BooleanField, CharField, DateTimeField, ForeignKeyField,
                     IntegerField, Model, PrimaryKeyField, TextField)
 from playhouse.pool import PostgresqlDatabase
 from playhouse.shortcuts import RetryOperationalError
-from utils.schema import CITIES
 
 
 class MyRetryDB(RetryOperationalError, PostgresqlDatabase):
@@ -93,26 +91,3 @@ class Lecturers(BaseModel):
     fio = CharField(index=True)  # index to faster search by this field
     chair = CharField()  # department in RUZ notation
     lecturer_id = IntegerField(unique=True)
-
-
-TABLES = (Users, Lessons, Lecturers)
-
-
-def create_tables(tables: Collection) -> None:
-    for table in tables:
-        if not table.table_exists():
-            print("create table: {}".format(table))
-            table.create_table()
-
-
-def drop_tables(tables: Collection) -> None:
-    for table in reversed(tables):
-        if table.table_exists():
-            print("drop table: {}".format(table))
-            table.drop_table()
-
-
-if __name__ == '__main__':
-    drop_tables(TABLES)
-    create_tables(TABLES)
-    print("DONE")

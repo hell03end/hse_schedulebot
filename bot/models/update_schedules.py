@@ -3,12 +3,12 @@ from multiprocessing import Pool
 
 from ruz import RUZ
 
-from models import Lessons, Users
-from utils.messages import MESSAGES
-from utils.schema import (DAYS, LESSONS_TIMETABLE, MESSAGE_SCHEMA, POST_SCHEMA,
-                          TABLE_MAPPING)
+from bot.models.models import Lessons, Users
+from bot.utils.messages import MESSAGES
+from bot.utils.schema import (DAYS, LESSONS_TIMETABLE, MESSAGE_SCHEMA,
+                              POST_SCHEMA, TABLE_MAPPING)
 
-MESSAGES = MESSAGES['update_db']
+MESSAGES = MESSAGES['models:update_schedules']
 api = RUZ()
 
 
@@ -79,6 +79,6 @@ def get_and_save(email: str) -> None:
     update_schedules(fetch_schedule(email), email)
 
 
-if __name__ == '__main__':
+def main() -> None:
     pool = Pool(5)
     pool.map(get_and_save, get_emails(), chunksize=35)
