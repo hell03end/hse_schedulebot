@@ -1,8 +1,8 @@
 from bot.logger import log
-from bot.models import Lessons
+from bot.models import Lessons, Users
 from bot.service.common_handlers import start
-from bot.utils.functions import is_cancelled
-from bot.utils.keyboards import (SCHEDULE_KEYBOARD, START_KEYBOARD,
+from bot.utils.functions import is_cancelled, is_back
+from bot.utils.keyboards import (BACK_KEY, SCHEDULE_KEYBOARD, START_KEYBOARD,
                                  WEEK_KEYBOARD)
 from bot.utils.messages import MESSAGES
 from bot.utils.schema import DAY_MAPPING
@@ -35,11 +35,20 @@ def choose_dow(bot: Bot, update: object) -> int:
     if is_cancelled(message):
         bot.send_message(
             uid,
-            MESSAGES['choose_dow:back'],
+            MESSAGES['choose_dow:cancel'],
             reply_markup=ReplyKeyboardMarkup(START_KEYBOARD)
         )
+        return ConversationHandler.END
+    elif is_back(message):
+        bot.send_message(
+            update.message.from_user.id,
+            MESSAGES['choose_dow:back'],
+            reply_markup=ReplyKeyboardMarkup(SCHEDULE_KEYBOARD)
+        )
+        return ConversationHandler.END
 
-    lessons = Lessons.get(Lessons.student.telegram_id == uid)
+    user = Users.get(Users.telegram_id == uid)
+    lessons = Lessons.get(Lessons.student == user.id)
     send_params = {
         'text': MESSAGES['choose_dow:ask'],
         'chat_id': chat_id,
@@ -51,7 +60,7 @@ def choose_dow(bot: Bot, update: object) -> int:
                                       lessons.friday, lessons.saturday]))
     send_params['text'] = schedule[message]
     bot.send_message(**send_params)
-    return ConversationHandler.END
+    return on_week(bot, update)
 
 
 def register(dispatcher: Dispatcher) -> None:
