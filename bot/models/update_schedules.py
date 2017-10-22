@@ -22,16 +22,17 @@ def fetch_schedule(email: str, api: object=api, **kwargs) -> list:
     return api.schedule(email, **kwargs)
 
 
-def format_lessons(lessons: Collection,
-                   schema: dict=MESSAGE_SCHEMA) -> Generator:
+def format_lessons(lessons: Collection, schema: dict=MESSAGE_SCHEMA,
+                   city: str="moscow", **kwargs) -> Generator:
     """ apply correct message schema to lesson """
     for lesson in lessons:
-        lesson_time = LESSONS_TIMETABLE.get(
-            lesson.get('beginLesson'),
-            f"{lesson.get('beginLesson')} - {lesson.get('endLesson')}"
-        )
+        lesson_time = LESSONS_TIMETABLE[city].get(lesson.get('beginLesson'))
+        time_message = MESSAGES['format_lesson:time'].format(lesson_time)
+        if not lesson_time:
+            time_message = f"{lesson.get('beginLesson')} - " \
+                           f"{lesson.get('endLesson')}"
         yield schema.format(
-            time=MESSAGES['format_lesson:time'].format(lesson_time),
+            time=time_message,
             name=lesson.get('discipline', "Undefined"),
             type=lesson.get('kindOfWork', "Undefined"),
             teacher=lesson.get('lecturer', "Professor"),
@@ -40,24 +41,28 @@ def format_lessons(lessons: Collection,
         )
 
 
-def format_day_schedule(lessons: Iterable,
-                        schema: dict=POST_SCHEMA) -> str:
+def format_day_schedule(lessons: Iterable, schema: dict=POST_SCHEMA,
+                        **kwargs) -> str:
     """ apply correct day schema to list of this day lessons """
     return schema.format(
-        date=f"{DAYS[lessons[0].get('dayOfWeek', 0)]},"
+        date=f"{DAYS[lessons[0].get('dayOfWeek', 0)]}, "
              f"{lessons[0].get('date', '...')}",
-        messages="\n\n".join(lesson for lesson in format_lessons(lessons))
+        messages="\n\n".join(lesson for lesson in format_lessons(lessons,
+                                                                 **kwargs))
     )
 
 
-def format_schedule(schedule: Collection) -> list:
+def format_schedule(schedule: Collection, **kwargs) -> list:
     """ apply schema for all days with lessons in schedule """
     days = [[] for _ in range(7)]
     for lesson in schedule:
         days[lesson['dayOfWeek'] - 1].append(lesson)
     lessons = [[] for _ in range(7)]
     for idx, day in enumerate(days):
-        lessons[idx] = format_day_schedule(day) if day else None
+        if day:
+            lessons[idx] = format_day_schedule(day, **kwargs)
+        else:
+            lessons[idx] = MESSAGES['format_schedule:empty']
     return lessons
 
 
