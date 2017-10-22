@@ -32,6 +32,7 @@ class Users(BaseModel):
     student = BooleanField(default=True)
     city = CharField(null=True)
     dt = DateTimeField(default=dt.now())
+    show_trains = BooleanField(null=True, default=False)
 
     @staticmethod
     def check_email(email: str) -> bool:
