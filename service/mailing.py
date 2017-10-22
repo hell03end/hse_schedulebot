@@ -1,43 +1,40 @@
 from multiprocessing import Pool
 from threading import Thread
 
-from telegram import ParseMode, ReplyKeyboardMarkup
-from telegram.ext import ConversationHandler, RegexHandler, CommandHandler, \
-    Filters, MessageHandler
-from models import Users
 from config import ADMINS
-from utils.functions import is_cancelled
-from utils.keyboards import START_KEYBOARD
-from service.common_handlers import start
-from utils.states import WHOM_TO_SEND, PREPARE_MAILING
 from logger import log
+from models import Users
+from service.common_handlers import start
+from telegram import ParseMode, ReplyKeyboardMarkup
+from telegram.ext import (CommandHandler, ConversationHandler, Filters,
+                          MessageHandler, RegexHandler)
+from utils.functions import is_cancelled
+from utils.keyboards import BACK_KEY, MAILING_WHOM_KEYBOARD, START_KEYBOARD
+from utils.messages import MESSAGES
+from utils.states import PREPARE_MAILING, WHOM_TO_SEND
+
+MESSAGES = MESSAGES['mailing']
 
 
 @log
-def do_mailing(bot, recipients, msg, author):
+def do_mailing(bot: object, recipients: object, msg: str, author: str) -> None:
     pool = Pool(10)
     data = set()
     for recipient in recipients:
+        # maybe markdown?
         data.add((recipient.telegram_id, msg, ParseMode.HTML))
     result = pool.starmap(bot.send_message, data)
-    bot.send_message(
-        author,
-        f'Разослал. Сообщение получили {len(result)}'
-    )
+    bot.send_message(author, MESSAGES['do_mailing:end'].format(len(result)))
 
 
 @log
-def whom_to_send(bot, update, user_data):
+def whom_to_send(bot: object, update: object, user_data: object) -> (int, str):
     uid = update.message.from_user.id
     if uid in ADMINS:
         send_params = {
-            'text': 'Кому будем рассылать',
+            'text': MESSAGES['whom_to_send:ask'],
             'chat_id': uid,
-            'reply_markup': ReplyKeyboardMarkup([
-                ['Всем'],
-                [['Студентам', 'Преподавателям']],
-                ['Назад']
-            ])
+            'reply_markup': ReplyKeyboardMarkup(MAILING_WHOM_KEYBOARD)
         }
         user_data['whom_to_send_sp'] = send_params
 
@@ -47,26 +44,23 @@ def whom_to_send(bot, update, user_data):
 
 
 @log
-def recipients(bot, update, user_data):
+def recipients(bot: object, update: object, user_data: object) -> (int, str):
     uid = update.message.from_user.id
     message = update.message.text
     if is_cancelled(message):
         bot.send_message(**user_data['whom_to_send_sp'])
         return ConversationHandler.END
-    if message == 'Всем':
+    if message == MAILING_WHOM_KEYBOARD[0][0]:
         user_data['recipients'] = 'all'
-    elif message == 'Преподавателям':
+    elif message == MAILING_WHOM_KEYBOARD[1][-1]:
         user_data['recipients'] = 'lecturers'
-    elif message == 'Студентам':
+    elif message == MAILING_WHOM_KEYBOARD[1][0]:
         user_data['recipients'] = 'students'
 
     send_params = {
-        'text': 'Напиши, что будем отправлять',
+        'text': MESSAGES['recipients:ask'],
         'chat_id': uid,
-        'reply_markup': ReplyKeyboardMarkup([
-            ['Назад']],
-            resize_keyboard=1
-        )
+        'reply_markup': ReplyKeyboardMarkup([BACK_KEY], resize_keyboard=1)
     }
 
     user_data['recipients_sp'] = send_params
@@ -76,7 +70,8 @@ def recipients(bot, update, user_data):
 
 
 @log
-def prepare_mailing(bot, update, user_data):
+def prepare_mailing(bot: object, update: object,
+                    user_data: object) -> (int, str):
     uid = update.message.from_user.id
     message = update.message.text
     if is_cancelled(message):
@@ -94,11 +89,11 @@ def prepare_mailing(bot, update, user_data):
         t.start()
         bot.send_message(
             uid,
-            'Начал рассылку. Я напишу тебе, когда закончу',
+            MESSAGES['prepare_mailing:start'],
             reply_markup=ReplyKeyboardMarkup(START_KEYBOARD)
         )
     else:
-        bot.send_message(uid, 'Некому отправлять :(')
+        bot.send_message(uid, MESSAGES['prepare_mailing:empty'])
     return ConversationHandler.END
 
 

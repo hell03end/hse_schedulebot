@@ -4,9 +4,11 @@ from multiprocessing import Pool
 from ruz import RUZ
 
 from models import Lessons, Users
+from utils.messages import MESSAGES
 from utils.schema import (DAYS, LESSONS_TIMETABLE, MESSAGE_SCHEMA, POST_SCHEMA,
                           TABLE_MAPPING)
 
+MESSAGES = MESSAGES['update_db']
 api = RUZ()
 
 
@@ -29,7 +31,7 @@ def format_lessons(lessons: Collection,
             f"{lesson.get('beginLesson')} - {lesson.get('endLesson')}"
         )
         yield schema.format(
-            time=f"{lesson_time} Ð¿Ð°Ñ€Ð°",
+            time=MESSAGES['format_lesson:time'].format(lesson_time),
             name=lesson.get('discipline', "Undefined"),
             type=lesson.get('kindOfWork', "Undefined"),
             teacher=lesson.get('lecturer', "Professor"),
