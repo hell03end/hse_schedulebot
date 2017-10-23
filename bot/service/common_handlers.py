@@ -1,12 +1,15 @@
+from threading import Thread
+
 from bot.logger import log
 from bot.models import Users
+from bot.models.update_schedules import get_and_save
 from bot.utils.functions import is_cancelled, typing
 from bot.utils.keyboards import (CITIES_KEYBOARD, REGISTER_KEYBOARD,
                                  START_KEYBOARD)
 from bot.utils.messages import MESSAGES
 from bot.utils.schema import CITIES
 from bot.utils.states import ASK_CITY, ASK_EMAIL, INCORRECT_EMAIL
-from telegram import ReplyKeyboardMarkup
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.bot import Bot
 from telegram.ext import (CommandHandler, ConversationHandler, Filters,
                           MessageHandler, RegexHandler)
@@ -23,7 +26,11 @@ def ask_email(bot: Bot, update: Update) -> (int, str):
     if is_cancelled(update.message.text):
         return send_cancel(bot, uid)
 
-    bot.send_message(uid, text=MESSAGES['ask_email:ask'], reply_markup=None)
+    bot.send_message(
+        uid,
+        text=MESSAGES['ask_email:ask'],
+        reply_markup=ReplyKeyboardRemove()
+    )
     return ASK_EMAIL
 
 
@@ -61,22 +68,14 @@ def get_email(bot: Bot, update: Update, user_data: dict) -> (int, str):
         return send_cancel(bot, uid)
 
     if not Users.check_email(message):
-        bot.send_message(
-            uid,
-            text=MESSAGES['get_email:incorrect'],
-            reply_markup=None
-        )
+        bot.send_message(uid, text=MESSAGES['get_email:incorrect'])
         return INCORRECT_EMAIL
 
     user_data['reg_email'] = message
     user_data['reg_tg_id'] = uid
     user_data['reg_username'] = update.message.from_user.username
 
-    bot.send_message(
-        uid,
-        text=MESSAGES['get_email:correct'],
-        reply_markup=None
-    )
+    bot.send_message(uid, text=MESSAGES['get_email:correct'])
     return ask_city(bot, update)
 
 
@@ -89,16 +88,12 @@ def get_city(bot: Bot, update: Update, user_data: dict) -> (int, str):
         return send_cancel(bot, uid)
 
     if message not in CITIES:
-        bot.send_message(
-            uid,
-            text=MESSAGES['get_city:incorrect'],
-            reply_markup=None
-        )
-        message = "moscow"  # default value
+        bot.send_message(uid, text=MESSAGES['get_city:incorrect'])
+        message = "Москва"  # default value
 
     user_data['reg_city'] = message
 
-    bot.send_message(uid, text=MESSAGES['get_city:msg'], reply_markup=None)
+    bot.send_message(uid, text=MESSAGES['get_city:msg'])
     return add_user(bot, update, user_data)
 
 
@@ -116,6 +111,12 @@ def add_user(bot: Bot, update: Update, user_data: dict) -> (int, str):
     user.set_email(user_data['reg_email'])
     user.set_status(user_data['reg_email'])
     user.save()
+
+    thread = Thread(
+        target=get_and_save,
+        kwargs={'email': (user.email, user.student)}
+    )
+    thread.start()  # update schedules
 
     bot.send_message(
         uid,
