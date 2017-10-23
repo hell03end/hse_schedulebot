@@ -52,12 +52,12 @@ class TestUsers:
 
     def test_set_city(self):
         user = Users()
-        user.set_city("Moscow")
+        user.set_city("Москва")
         assert user.city == "moscow"
-        user.set_city("Piter")
+        user.set_city("Пермь")
         assert user.city == "moscow"
-        user.set_city("Piter", update=True)
-        assert user.city == "piter"
+        user.set_city("Пермь", update=True)
+        assert user.city == "perm"
         with pytest.raises(ValueError) as excinfo:
             user.set_city("Paris", update=True)
         assert excinfo
