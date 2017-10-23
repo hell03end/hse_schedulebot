@@ -12,13 +12,14 @@ from telegram.bot import Bot
 from telegram.ext import (CommandHandler, ConversationHandler, Filters,
                           MessageHandler, RegexHandler)
 from telegram.ext.dispatcher import Dispatcher
+from telegram.update import Update
 
 MESSAGES = MESSAGES['schedule:week']
 
 
 @log
 @typing
-def on_week(bot: Bot, update: object) -> str:
+def on_week(bot: Bot, update: Update) -> str:
     bot.send_message(
         update.message.from_user.id,
         MESSAGES['on_week:ask'],
@@ -29,7 +30,7 @@ def on_week(bot: Bot, update: object) -> str:
 
 @log
 @typing
-def choose_dow(bot: Bot, update: object) -> int:
+def choose_dow(bot: Bot, update: Update) -> int:
     """ Send schedule for given Day Of Week (dow) """
     uid = update.message.from_user.id
     chat_id = update.message.chat.id

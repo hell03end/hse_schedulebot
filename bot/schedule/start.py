@@ -7,13 +7,14 @@ from telegram import ReplyKeyboardMarkup
 from telegram.bot import Bot
 from telegram.ext import CommandHandler, ConversationHandler, RegexHandler
 from telegram.ext.dispatcher import Dispatcher
+from telegram.update import Update
 
 MESSAGES = MESSAGES['schedule:start']
 
 
 @log
 @typing
-def on_schedule(bot: Bot, update: object) -> None:
+def on_schedule(bot: Bot, update: Update) -> None:
     bot.send_message(
         update.message.from_user.id,
         MESSAGES['on_schedule:ask'],
@@ -23,7 +24,7 @@ def on_schedule(bot: Bot, update: object) -> None:
 
 @log
 @typing
-def on_back(bot: Bot, update: object) -> None:
+def on_back(bot: Bot, update: Update) -> None:
     bot.send_message(
         update.message.from_user.id,
         MESSAGES['on_back:msg'],

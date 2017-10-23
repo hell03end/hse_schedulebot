@@ -14,6 +14,7 @@ from telegram.bot import Bot
 from telegram.ext import (CommandHandler, ConversationHandler, Filters,
                           MessageHandler, RegexHandler)
 from telegram.ext.dispatcher import Dispatcher
+from telegram.update import Update
 
 MESSAGES = MESSAGES['service:mailing']
 
@@ -32,7 +33,7 @@ def do_mailing(bot: Bot, recipients: object, msg: str, author: str) -> None:
 
 @log
 @typing
-def whom_to_send(bot: Bot, update: object, user_data: dict) -> (int, str):
+def whom_to_send(bot: Bot, update: Update, user_data: dict) -> (int, str):
     uid = update.message.from_user.id
     if uid in ADMINS:
         send_params = {
@@ -49,7 +50,7 @@ def whom_to_send(bot: Bot, update: object, user_data: dict) -> (int, str):
 
 @log
 @typing
-def recipients(bot: Bot, update: object, user_data: dict) -> (int, str):
+def recipients(bot: Bot, update: Update, user_data: dict) -> (int, str):
     uid = update.message.from_user.id
     message = update.message.text
     if is_cancelled(message):
@@ -76,7 +77,7 @@ def recipients(bot: Bot, update: object, user_data: dict) -> (int, str):
 
 @log
 @typing
-def prepare_mailing(bot: Bot, update: object, user_data: dict) -> (int, str):
+def prepare_mailing(bot: Bot, update: Update, user_data: dict) -> (int, str):
     uid = update.message.from_user.id
     message = update.message.text
     if is_cancelled(message):

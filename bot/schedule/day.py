@@ -11,13 +11,14 @@ from telegram import ParseMode, ReplyKeyboardMarkup
 from telegram.bot import Bot
 from telegram.ext import CommandHandler, ConversationHandler, RegexHandler
 from telegram.ext.dispatcher import Dispatcher
+from telegram.update import Update
 
 MESSAGES = MESSAGES['schedule:day']
 
 
 @log
 @typing
-def on_day(bot: Bot, update: object, next_day: bool=False) -> int:
+def on_day(bot: Bot, update: Update, next_day: bool=False) -> int:
     uid = update.message.from_user.id
     chat_id = update.message.chat.id
     message = update.message.text
@@ -43,7 +44,7 @@ def on_day(bot: Bot, update: object, next_day: bool=False) -> int:
 
 @log
 @typing
-def on_tomorrow(bot: Bot, update: object) -> None:
+def on_tomorrow(bot: Bot, update: Update) -> None:
     return on_day(bot, update, next_day=True)
 
 

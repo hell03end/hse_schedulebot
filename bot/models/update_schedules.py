@@ -78,7 +78,7 @@ def update_schedules(schedules: (list, tuple), email: str) -> None:
     Lessons.update(**lessons).where(Lessons.id == lessons_obj.id).execute()
 
 
-def get_and_save(email: str) -> None:
+def get_and_save(email: Iterable) -> None:
     """ pipeline for getting and saving schedules """
     update_schedules(fetch_schedule(email[0], is_student=email[1]), email[0])
 
