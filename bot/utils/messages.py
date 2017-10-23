@@ -82,65 +82,66 @@ MESSAGES = {
     },
     'service:common_handlers': {
         'start:greetings':
-            "Привет {}!",
+            "Привет, как дела?",
         'start:greetings_new': "Привет! У меня можно подсмотреть расписание "
             "пар (в том числе, преподователям) "
             "{}".format(emojize(':winking_face:')),
-        'ask_email:ask': "Введите Ваш корпоративный адрес электронной почты.",
-        'ask_city:ask': "В вышке какого города Вы учитесь/преподаете?",
+        'ask_email:ask': "Введи твой корпоративный адрес электронной почты. "
+                         "Да-да, тот который на hse.ru заканчивается",
+        'ask_city:ask': "В вышке какого города учитесь/преподаете?",
         'show_about': "Я умею показывать рассписание занятий как для "
             "студентов, так и для преподавателей. В будущем, я научусь и "
             "другим полезным функциям.",
         'cancel': "Начнем с начала.",
-        'get_email:incorrect': "Введеный email не является вышкинским :( ",
-        'get_email:correct': "Вашу почту запомнил!",
-        'get_city:incorrect': "К сожалению, в Вашем городе еще нет НИУ ВШЭ, "
+        'get_email:incorrect': "А ты точно их Вышки? А то email не подходит :( ",
+        'get_email:correct': "Почту запомнил!",
+        'get_city:incorrect': "К сожалению, в этом городе еще нет НИУ ВШЭ, "
             "переезжаем в Москву... (можно изменить в настройках)",
         'get_city:msg': "Город запомнил.",
-        'add_user:msg': "Готов к использованию!"
+        'add_user:msg': "Ну, будем дружить? " + emojize(':smiling_face:')
     },
     'schedule:week': {
         'on_week:ask': "Выбери день недели {}".format(
             emojize(':tear-off_calendar:')),
-        'choose_dow:empty': "Нет пар.",
+        'choose_dow:empty': "Нет пар",
         'choose_dow:back': "Вот предыдущее меню.",
-        'choose_dow:ask': "Выбери вариант на клавиатуре.",
-        'choose_dow:cancel': "Начнем с начала.",
+        'choose_dow:ask': "Выбери вариант на клавиатуре",
+        'choose_dow:cancel': "Начнем с начала",
         'choose_dow:spam': on_spam_day
     },
     'service:settings': {
-        'on_settings:unregistered': "Пожалуйста, зарегистрируйтесь!",
-        'current': "Текущие настройки:\nemail: {}\nгород: {}",
+        'on_settings:unregistered': "Сначала надо зарегистрироваться!",
+        'current': "Текущие настройки:\nEmail: {}\nГород: {}",
         'choose_menu:spam': on_spam,
         'choose_menu:feedback': "Свой отзыв/предложение/вопрос пиши в: "
             "https://t.me/joinchat/A2Ahbgvbg3mq2b_WnDvWVw",
-        'on_back:msg': "Вот предыдущее меню.",
-        'choose_menu:ask_email': "Введите новый адрес корпоративной почты:",
-        'choose_menu:ask_city': "Введите свой город:",
-        'get_email:back': "Отменяю операцию...",
-        'get_email:incorrect': "Введенный email не является вышкинским...",
-        'get_email:correct': "Ваш адрес электронной почты успешно изменен.",
-        'get_city:back': "Отменяю операцию...",
-        'get_city:incorrect': "В указанном городе нет вышки.",
-        'get_city:correct': "Город успешно изменен.",
+        'on_back:msg': "Вот предыдущее меню",
+        'choose_menu:ask_email': "Введи новый адрес корпоративной почты:",
+        'choose_menu:ask_city': "Введи свой город:",
+        'get_email:back': "Отмена...",
+        'get_email:incorrect': "А ты точно их Вышки? А то email не подходит :(",
+        'get_email:correct': "Адрес электронной почты успешно изменен",
+        'get_city:back': "Отмена...",
+        'get_city:incorrect': "В указанном городе нет вышки (как так-то)",
+        'get_city:correct': "Город успешно изменен",
         'show_about': "Я умею показывать рассписание занятий как для "
             "студентов, так и для преподавателей. В будущем, я научусь и "
             "другим полезным функциям."
     },
     'schedule:day': {
-        'on_day:back': "Вот предыдущее меню.",
-        'on_day:empty': "Нет пар.",
+        'on_day:back': "Вот предыдущее меню",
+        'on_day:empty': "Нет пар",
         'on_day:sunday': "Воскресенье, отдыхай :)",
-        'on_back:msg': "Вот предыдущее меню."
+        'on_back:msg': "Вот предыдущее меню"
     },
     'models:update_schedules': {
-        'format_lesson:time': "{} пара.",
-        'format_schedule:empty': "Нет пар."
+        'format_lesson:time': "{} пара",
+        'format_schedule:empty': "Нет пар"
     },
     'schedule:start': {
         'on_schedule:ask': "На какой день показывать?",
-        'on_back:msg': "Вот предыдущее меню.",
-        'choose_menu:back': "Вот предыдущее меню.",
+        'on_back:msg': "Вот предыдущее меню",
+        'choose_menu:back': "Вот предыдущее меню",
         'on_spam': on_spam
     }
 }
