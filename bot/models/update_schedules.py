@@ -1,5 +1,6 @@
 from collections import Collection, Generator, Iterable
 from multiprocessing import Pool
+from datetime import datetime
 
 from ruz import RUZ
 
@@ -70,16 +71,19 @@ def format_schedule(schedule: Collection, **kwargs) -> list:
 
 def update_schedules(schedules: (list, tuple), email: str) -> None:
     """ format and save (update) schedules to database """
-    if schedules is None:
-        raise ValueError("Wrong schedules!")
-    elif not schedules:
-        return
     student = Users.get(email=email)
     lessons_obj, _ = Lessons.get_or_create(student=student)
+    if schedules is None:
+        lessons_obj.delete_instance()
+        raise ValueError("Wrong schedules!")  # to handle wrong emails
+    elif not schedules:
+        lessons_obj.delete_instance()
+        return
     schedule = format_schedule(schedules)
 
     lessons = dict(zip(TABLE_MAPPING, schedule))
-    Lessons.update(**lessons).where(Lessons.id == lessons_obj.id).execute()
+    Lessons.update(**lessons, upd_dt=datetime.now()).where(
+        Lessons.id == lessons_obj.id).execute()
 
 
 def get_and_save(email: Iterable) -> None:
