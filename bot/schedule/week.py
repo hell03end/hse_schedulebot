@@ -1,5 +1,6 @@
 from bot.logger import log
 from bot.models import Lessons, Users
+from bot.schedule.commons import get_lessons
 from bot.service.common_handlers import send_cancel
 from bot.utils.functions import is_back, is_cancelled, typing
 from bot.utils.keyboards import SCHEDULE_KEYBOARD, WEEK_KEYBOARD
@@ -27,7 +28,7 @@ def on_week(bot: Bot, update: Update) -> str:
 
 @log
 @typing
-def choose_dow(bot: Bot, update: Update) -> int:
+def choose_dow(bot: Bot, update: Update) -> (int, str):
     """ Send schedule for given Day Of Week (dow) """
     uid = update.message.from_user.id
     chat_id = update.message.chat.id
@@ -42,17 +43,19 @@ def choose_dow(bot: Bot, update: Update) -> int:
         )
         return SCHEDULE
 
-    lessons = Lessons.select().join(Users).where(
-        Users.telegram_id == uid).get()
-    send_params = {
-        'text': MESSAGES['choose_dow:ask'],
-        'chat_id': chat_id,
-        # messages in db are in markdown, look for utils.shcema
-        'parse_mode': ParseMode.MARKDOWN
-    }
-    schedule = dict(zip(DAY_MAPPING, [lessons.monday, lessons.tuesday,
-                                      lessons.wednesday, lessons.thursday,
-                                      lessons.friday, lessons.saturday]))
-    send_params['text'] = schedule[message]
-    bot.send_message(**send_params)
+    lessons = get_lessons(uid)
+    if not lessons:
+        bot.send_message(uid, MESSAGES['on_week:empty'])
+    else:
+        send_params = {
+            'text': MESSAGES['choose_dow:ask'],
+            'chat_id': chat_id,
+            # messages in db are in markdown, look for utils.shcema
+            'parse_mode': ParseMode.MARKDOWN
+        }
+        schedule = dict(zip(DAY_MAPPING, [lessons.monday, lessons.tuesday,
+                                          lessons.wednesday, lessons.thursday,
+                                          lessons.friday, lessons.saturday]))
+        send_params['text'] = schedule[message]
+        bot.send_message(**send_params)
     return on_week(bot, update)

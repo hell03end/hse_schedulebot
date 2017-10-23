@@ -2,6 +2,7 @@ from datetime import datetime
 
 from bot.logger import log
 from bot.models import Lessons, Users
+from bot.schedule.commons import get_lessons
 from bot.service.common_handlers import send_cancel
 from bot.utils.functions import is_cancelled, typing
 from bot.utils.messages import MESSAGES
@@ -23,8 +24,10 @@ def on_day(bot: Bot, update: Update, next_day: bool=False) -> int:
     if is_cancelled(message):
         return send_cancel(bot, uid)
 
-    lessons = Lessons.select().join(Users).where(
-        Users.telegram_id == uid).get()
+    lessons = get_lessons(uid)
+    if not lessons:
+        bot.send_message(uid, MESSAGES['on_day:empty'])
+        return
     send_params = {
         'chat_id': chat_id,
         'parse_mode': ParseMode.MARKDOWN
