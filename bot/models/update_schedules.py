@@ -73,10 +73,7 @@ def update_schedules(schedules: Iterable, telegram_id: str) -> None:
     """ format and save (update) schedules to database """
     student = Users.get(telegram_id=telegram_id)
     lessons_obj, _ = Lessons.get_or_create(student=student)
-    if schedules is None:
-        lessons_obj.delete_instance()
-        raise ValueError("Wrong schedules!")  # to handle wrong emails
-    elif not schedules:
+    if not schedules:
         lessons_obj.delete_instance()
         return
     schedule = format_schedule(schedules)
