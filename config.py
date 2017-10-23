@@ -3,7 +3,7 @@ import os
 
 PG_CONN = {
     'host': 'localhost',
-    'port': 5433,
+    'port': 5432,
     'user': os.environ.get("POSTGRES_USER"),
     'password': os.environ.get("POSTGRES_PASSWORD"),
     'autorollback': True
