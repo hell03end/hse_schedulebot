@@ -1,7 +1,7 @@
 from bot.logger import log
 from bot.models import Lessons, Users
-from bot.service.common_handlers import start
-from bot.utils.functions import is_cancelled, is_back
+from bot.service.common_handlers import send_cancel, start
+from bot.utils.functions import is_back, is_cancelled
 from bot.utils.keyboards import (BACK_KEY, SCHEDULE_KEYBOARD, START_KEYBOARD,
                                  WEEK_KEYBOARD)
 from bot.utils.messages import MESSAGES
@@ -21,7 +21,7 @@ def on_week(bot: Bot, update: object) -> str:
     bot.send_message(
         update.message.from_user.id,
         MESSAGES['on_week:ask'],
-        reply_markup=ReplyKeyboardMarkup(WEEK_KEYBOARD)
+        reply_markup=ReplyKeyboardMarkup(WEEK_KEYBOARD, True)
     )
     return DAY_OF_WEEK
 
@@ -33,22 +33,17 @@ def choose_dow(bot: Bot, update: object) -> int:
     chat_id = update.message.chat.id
     message = update.message.text
     if is_cancelled(message):
-        bot.send_message(
-            uid,
-            MESSAGES['choose_dow:cancel'],
-            reply_markup=ReplyKeyboardMarkup(START_KEYBOARD)
-        )
-        return ConversationHandler.END
+        return send_cancel(bot, uid)
     elif is_back(message):
         bot.send_message(
             update.message.from_user.id,
             MESSAGES['choose_dow:back'],
-            reply_markup=ReplyKeyboardMarkup(SCHEDULE_KEYBOARD)
+            reply_markup=ReplyKeyboardMarkup(SCHEDULE_KEYBOARD, True)
         )
         return ConversationHandler.END
 
     lessons = Lessons.select().join(Users).where(
-        Lessons.student == Users.telegram_id, Users.telegram_id == uid).get()
+        Users.telegram_id == uid).get()
     send_params = {
         'text': MESSAGES['choose_dow:ask'],
         'chat_id': chat_id,

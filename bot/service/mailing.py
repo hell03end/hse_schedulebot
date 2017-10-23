@@ -30,7 +30,7 @@ def do_mailing(bot: Bot, recipients: object, msg: str, author: str) -> None:
 
 
 @log
-def whom_to_send(bot: Bot, update: object, user_data: object) -> (int, str):
+def whom_to_send(bot: Bot, update: object, user_data: dict) -> (int, str):
     uid = update.message.from_user.id
     if uid in ADMINS:
         send_params = {
@@ -46,7 +46,7 @@ def whom_to_send(bot: Bot, update: object, user_data: object) -> (int, str):
 
 
 @log
-def recipients(bot: Bot, update: object, user_data: object) -> (int, str):
+def recipients(bot: Bot, update: object, user_data: dict) -> (int, str):
     uid = update.message.from_user.id
     message = update.message.text
     if is_cancelled(message):
@@ -72,8 +72,7 @@ def recipients(bot: Bot, update: object, user_data: object) -> (int, str):
 
 
 @log
-def prepare_mailing(bot: Bot, update: object,
-                    user_data: object) -> (int, str):
+def prepare_mailing(bot: Bot, update: object, user_data: dict) -> (int, str):
     uid = update.message.from_user.id
     message = update.message.text
     if is_cancelled(message):

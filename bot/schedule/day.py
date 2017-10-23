@@ -2,7 +2,7 @@ from datetime import datetime
 
 from bot.logger import log
 from bot.models import Lessons, Users
-from bot.service.common_handlers import start
+from bot.service.common_handlers import send_cancel, start
 from bot.utils.functions import is_cancelled
 from bot.utils.keyboards import BACK_KEY, SCHEDULE_KEYBOARD, START_KEYBOARD
 from bot.utils.messages import MESSAGES
@@ -21,15 +21,10 @@ def on_day(bot: Bot, update: object, next_day: bool=False) -> int:
     chat_id = update.message.chat.id
     message = update.message.text
     if is_cancelled(message):
-        bot.send_message(
-            uid,
-            MESSAGES['on_day:back'],
-            reply_markup=ReplyKeyboardMarkup(START_KEYBOARD)
-        )
-        return ConversationHandler.END
+        return send_cancel(bot, uid)
 
     lessons = Lessons.select().join(Users).where(
-        Lessons.student == Users.telegram_id, Users.telegram_id == uid).get()
+        Users.telegram_id == uid).get()
     send_params = {
         'chat_id': chat_id,
         'parse_mode': ParseMode.MARKDOWN

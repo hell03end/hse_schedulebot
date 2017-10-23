@@ -15,7 +15,7 @@ def on_schedule(bot: Bot, update: object) -> None:
     bot.send_message(
         update.message.from_user.id,
         MESSAGES['on_schedule:ask'],
-        reply_markup=ReplyKeyboardMarkup(SCHEDULE_KEYBOARD)
+        reply_markup=ReplyKeyboardMarkup(SCHEDULE_KEYBOARD, True)
     )
 
 
@@ -24,7 +24,7 @@ def on_back(bot: Bot, update: object) -> None:
     bot.send_message(
         update.message.from_user.id,
         MESSAGES['on_back:msg'],
-        reply_markup=ReplyKeyboardMarkup(START_KEYBOARD)
+        reply_markup=ReplyKeyboardMarkup(START_KEYBOARD, True)
     )
     return ConversationHandler.END
 
