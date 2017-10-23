@@ -66,6 +66,14 @@ def recipients(bot: Bot, update: Update, user_data: dict) -> (int, str):
         user_data['recipients'] = 'lecturers'
     elif message == MAILING_WHOM_KEYBOARD[1][0]:
         user_data['recipients'] = 'students'
+    else:
+        bot.send_message(
+            uid,
+            MESSAGES['whom_to_send:spam'],
+            ParseMode.HTML
+        )
+        bot.send_message(**user_data['whom_to_send_sp'])
+        return WHOM_TO_SEND
 
     send_params = {
         'text': MESSAGES['recipients:ask'],
