@@ -1,17 +1,15 @@
 from bot.logger import log
 from bot.models import Lessons, Users
-from bot.service.common_handlers import send_cancel, start
+from bot.schedule.commons import get_lessons
+from bot.service.common_handlers import send_cancel
 from bot.utils.functions import is_back, is_cancelled, typing
-from bot.utils.keyboards import (BACK_KEY, SCHEDULE_KEYBOARD, START_KEYBOARD,
-                                 WEEK_KEYBOARD)
+from bot.utils.keyboards import SCHEDULE_KEYBOARD, WEEK_KEYBOARD
 from bot.utils.messages import MESSAGES
 from bot.utils.schema import DAY_MAPPING
-from bot.utils.states import DAY_OF_WEEK
+from bot.utils.states import DAY_OF_WEEK, SCHEDULE
 from telegram import ParseMode, ReplyKeyboardMarkup
 from telegram.bot import Bot
-from telegram.ext import (CommandHandler, ConversationHandler, Filters,
-                          MessageHandler, RegexHandler)
-from telegram.ext.dispatcher import Dispatcher
+from telegram.ext import MessageHandler
 from telegram.update import Update
 
 MESSAGES = MESSAGES['schedule:week']
@@ -30,7 +28,7 @@ def on_week(bot: Bot, update: Update) -> str:
 
 @log
 @typing
-def choose_dow(bot: Bot, update: Update) -> int:
+def choose_dow(bot: Bot, update: Update) -> (int, str):
     """ Send schedule for given Day Of Week (dow) """
     uid = update.message.from_user.id
     chat_id = update.message.chat.id
@@ -43,30 +41,20 @@ def choose_dow(bot: Bot, update: Update) -> int:
             MESSAGES['choose_dow:back'],
             reply_markup=ReplyKeyboardMarkup(SCHEDULE_KEYBOARD, True)
         )
-        return ConversationHandler.END
+        return SCHEDULE
 
-    lessons = Lessons.select().join(Users).where(
-        Users.telegram_id == uid).get()
-    send_params = {
-        'text': MESSAGES['choose_dow:ask'],
-        'chat_id': chat_id,
-        # messages in db are in markdown, look for utils.shcema
-        'parse_mode': ParseMode.MARKDOWN
-    }
-    schedule = dict(zip(DAY_MAPPING, [lessons.monday, lessons.tuesday,
-                                      lessons.wednesday, lessons.thursday,
-                                      lessons.friday, lessons.saturday]))
-    send_params['text'] = schedule[message]
-    bot.send_message(**send_params)
-    return on_week(bot, update)
-
-
-def register(dispatcher: Dispatcher) -> None:
-    week_schedule = ConversationHandler(
-        entry_points=[RegexHandler(SCHEDULE_KEYBOARD[1][0], on_week)],
-        states={
-            DAY_OF_WEEK: [MessageHandler(Filters.text, choose_dow)],
-        },
-        fallbacks=[CommandHandler('start', start)]
-    )
-    dispatcher.add_handler(week_schedule)
+    lessons = get_lessons(uid)
+    if not lessons:
+        bot.send_message(uid, MESSAGES['on_week:empty'])
+    else:
+        send_params = {
+            'text': MESSAGES['choose_dow:ask'],
+            'chat_id': chat_id,
+            # messages in db are in markdown, look for utils.shcema
+            'parse_mode': ParseMode.MARKDOWN
+        }
+        schedule = dict(zip(DAY_MAPPING, [lessons.monday, lessons.tuesday,
+                                          lessons.wednesday, lessons.thursday,
+                                          lessons.friday, lessons.saturday]))
+        send_params['text'] = schedule[message]
+        bot.send_message(**send_params)

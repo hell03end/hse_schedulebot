@@ -6,7 +6,7 @@ from bot.models.update_schedules import get_and_save
 from bot.utils.functions import is_cancelled, typing
 from bot.utils.keyboards import (CITIES_KEYBOARD, REGISTER_KEYBOARD,
                                  START_KEYBOARD)
-from bot.utils.messages import MESSAGES
+from bot.utils.messages import MESSAGES, TRIGGERS
 from bot.utils.schema import CITIES
 from bot.utils.states import ASK_CITY, ASK_EMAIL, INCORRECT_EMAIL
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
@@ -112,11 +112,8 @@ def add_user(bot: Bot, update: Update, user_data: dict) -> (int, str):
     user.set_status(user_data['reg_email'])
     user.save()
 
-    thread = Thread(
-        target=get_and_save,
-        kwargs={'email': (user.email, user.student)}
-    )
-    thread.start()  # update schedules
+    thread = Thread(target=get_and_save, args=((user.email, user.student), ))
+    thread.start()
 
     bot.send_message(
         uid,
@@ -131,10 +128,8 @@ def add_user(bot: Bot, update: Update, user_data: dict) -> (int, str):
 def show_about(bot: Bot, update: Update) -> int:
     bot.send_message(
         update.message.from_user.id,
-        MESSAGES['show_about'],
-        reply_markup=ReplyKeyboardMarkup(REGISTER_KEYBOARD, True)
+        MESSAGES['show_about']
     )
-    return ConversationHandler.END
 
 
 @log
@@ -161,7 +156,6 @@ def start(bot: Bot, update: Update) -> None:
 
 
 def register(dispatcher: Dispatcher) -> None:
-    start_handler = CommandHandler('start', start)
     registration = ConversationHandler(
         entry_points=[RegexHandler(REGISTER_KEYBOARD[0][0], ask_email)],
         states={
@@ -175,17 +169,10 @@ def register(dispatcher: Dispatcher) -> None:
                 MessageHandler(Filters.text, get_city, pass_user_data=True)
             ],
         },
-        fallbacks=(start_handler, )
-    )
-    show_info = ConversationHandler(
-        entry_points=[
-            RegexHandler(REGISTER_KEYBOARD[1][0], show_about),
-            RegexHandler(r"(инфо|о боте|функции)", show_about)
-        ],
-        states={},
-        fallbacks=(start_handler, )
+        fallbacks=(CommandHandler('start', start), )
     )
 
-    dispatcher.add_handler(start_handler)
+    dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(registration)
-    dispatcher.add_handler(show_info)
+    dispatcher.add_handler(RegexHandler(REGISTER_KEYBOARD[1][0], show_about))
+    dispatcher.add_handler(RegexHandler(TRIGGERS['info'], show_about))

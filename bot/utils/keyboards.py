@@ -11,16 +11,20 @@ REGISTER_KEYBOARD = [
 ]
 
 CITIES_KEYBOARD = [
-    ['Москва', 'Пермь'],
-    ['Санкт Питербург'],
+    ['Москва', 'Москва:Дубки'],
+    ['Санкт Петербург'],
+    ['Пермь'],
     ['Нижний Новгород']
 ]
 
+CITIES_KEYBOARD_BACK = CITIES_KEYBOARD.copy()
+CITIES_KEYBOARD_BACK.append(BACK_KEY)
+
 SETTINGS_KEYBOARD = [
     ['О боте'],
-    # ['email', 'город'],
-    # ['Написать разработчикам'],
+    ['email', 'город'],
     # ['Добавить Электрички'],
+    # ['Написать разработчикам']
 ]
 SETTINGS_KEYBOARD.append(BACK_KEY)
 
