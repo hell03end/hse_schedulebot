@@ -15,7 +15,7 @@ api = RUZ()
 
 def get_users() -> Generator:
     """ return email, (is)student, telegram_id from Users database """
-    return map(lambda u: (u.email, u.student, u.telegram_id), Users)
+    return map(lambda u: (u.email, u.is_student, u.telegram_id), Users)
 
 
 def fetch_schedule(email: str, api: object=api, is_student: bool=True) -> list:
