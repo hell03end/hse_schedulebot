@@ -1,14 +1,4 @@
-LESSON_SCHEMA = {
-    'beginLesson': str,
-    'endLesson': str,
-    'discipline': str,
-    'kindOfWork': str,
-    'lecturer': str,
-    'building': str,
-    'auditorium': str,
-    'date': str,
-    'dayOfWeek': int
-}
+""" Collection of schemas, used in bot """
 
 TABLE_MAPPING = (
     'monday',

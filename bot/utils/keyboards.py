@@ -1,3 +1,5 @@
+""" Collection of custom keyboards used in bot """
+
 START_KEYBOARD = [
     ['Расписание'],
     ['Настройки']

@@ -1,3 +1,5 @@
+""" Collection of conversation states, used in bot """
+
 DAY_OF_WEEK = 'DAY_OF_WEEK'
 WHOM_TO_SEND = 'WHO_TO_SEND'
 PREPARE_MAILING = 'PREPARE_MAILING'
