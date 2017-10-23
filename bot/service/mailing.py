@@ -19,16 +19,28 @@ from telegram.update import Update
 MESSAGES = MESSAGES['service:mailing']
 
 
+def send_message_from_bot(bot, send_params):
+    try:
+        bot.send_message(*send_params)
+        return True
+    except BaseException:
+        return False
+
+
 @log
 def do_mailing(bot: Bot, recipients: object, msg: str, author: int) -> None:
     pool = Pool(10)
     data = set()
     for recipient in recipients:
-        data.add((recipient.telegram_id, msg, ParseMode.HTML))
-    result = pool.starmap(bot.send_message, data)
+        data.add(
+            (bot, (recipient.telegram_id, msg, ParseMode.HTML))
+          )
+    result = pool.starmap(send_message_from_bot, data)
+    sent_msgs = len([r for r in result if r is True])
+
     bot.send_message(
         author,
-        MESSAGES['do_mailing:end'].format(len(result)),
+        MESSAGES['do_mailing:end'].format(sent_msgs),
         ParseMode.HTML
     )
 
@@ -111,7 +123,7 @@ def prepare_mailing(bot: Bot, update: Update, user_data: dict) -> (int, str):
 
     if recipients.exists():
         thread = Thread(
-            name=f"prepare_mailing::{uid}",
+            name=f"mailing::{uid}",
             target=do_mailing,
             args=(bot, recipients, message, uid)
         )
