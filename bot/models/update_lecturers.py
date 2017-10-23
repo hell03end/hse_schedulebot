@@ -9,12 +9,12 @@ from bot.utils.messages import MESSAGES
 MESSAGES = MESSAGES['models:update_schedules']
 api = RUZ()
 
-patterns = (re.compile('ераспределенная'), re.compile('акансия'),
-            re.compile('!'), re.compile('нагрузка'))
 
-def save_lecturers(lecturer: dict) -> None:
-    # Checking data
+
+def check_lecturer(lecturer: dict) -> bool:
     match = False
+    patterns = (re.compile('ераспределенная'), re.compile('акансия'),
+                re.compile('!'), re.compile('нагрузка'))
     if not lecturer:
         match = True
     for key in ['fio', 'chair']:
@@ -22,8 +22,11 @@ def save_lecturers(lecturer: dict) -> None:
             match = p.search(lecturer[key])
     for word in lecturer['fio'].split()[:1]:
         match = not re.match(r'[A-ZА-Я].*', word)
+    return not match
 
-    if match:
+def save_lecturers(lecturer: dict) -> None:
+    # Checking data
+    if not check_lecturer(lecturer):
         return
     lect_dict = {
         'fio': lecturer['fio'],
