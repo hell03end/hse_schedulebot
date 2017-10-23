@@ -16,7 +16,7 @@ def parse_argv() -> Namespace:
     parser = ArgumentParser(description="Starts telegram bot for lessons "
                                         "schedule in HSE")
     parser.add_argument('action', type=str,
-                        help="run|update_schedules|init_db")
+                        help="run|update_schedules|init_db|save_state")
     parser.add_argument('--token', '-t', type=str, default="TEST",
                         help="api token name (from config) for access to bot")
     return parser.parse_args()
@@ -28,7 +28,8 @@ if __name__ == '__main__':
         update_schedules.main()
     elif args.action == "init_db":
         bot.init_db()
-        print("DONE")
+    elif args.action == "save_state":
+        bot.save_state()
     elif args.action == "run":
         bot.run(
             token=TOKENS.get(args.token.upper(), TOKENS["TEST"]),
