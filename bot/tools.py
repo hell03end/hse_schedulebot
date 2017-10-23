@@ -62,11 +62,14 @@ def save_state(period: (float, int)=60, **kwargs) -> None:
 def register(dispatcher: Dispatcher) -> None:
     """ Register all handlers with bot dispatcher """
     from bot import buses, schedule, service, trains
+    from telegram.ext import MessageHandler, Filters
+    from bot.service.common_handlers import start
 
-    buses.register(dispatcher)
-    schedule.register(dispatcher)
     service.register(dispatcher)
+    schedule.register(dispatcher)
+    buses.register(dispatcher)
     trains.register(dispatcher)
+    dispatcher.add_handler(MessageHandler(Filters.text, start))
 
 
 def init_db() -> None:
