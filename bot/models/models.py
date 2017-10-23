@@ -28,8 +28,8 @@ class BaseModel(Model):
 class Users(BaseModel):
     telegram_id = IntegerField(unique=1)
     username = CharField(null=True)
-    email = CharField()
-    is_student = BooleanField(default=True)
+    email = CharField(null=True)
+    is_student = BooleanField(null=True, default=True)
     city = CharField(null=True)
     show_trains = BooleanField(null=True, default=False)
     dt = DateTimeField(default=dt.now())
@@ -53,9 +53,7 @@ class Users(BaseModel):
             return True
         raise ValueError(f"Wrong domain: {domain}")
 
-    def set_city(self, city: str, update: bool=False) -> None:
-        if self.city and not update:
-            return
+    def set_city(self, city: str) -> None:
         if city not in CITIES:
             raise ValueError("Where is no HSE in this city: {city}")
         self.city = CITIES[city]
