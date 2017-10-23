@@ -66,6 +66,14 @@ def recipients(bot: Bot, update: Update, user_data: dict) -> (int, str):
         user_data['recipients'] = 'lecturers'
     elif message == MAILING_WHOM_KEYBOARD[1][0]:
         user_data['recipients'] = 'students'
+    elif message == BACK_KEY[0]:
+        bot.send_message(
+            uid,
+            MESSAGES['recipients:back'],
+            ParseMode.HTML,
+            reply_markup=ReplyKeyboardMarkup(START_KEYBOARD, True)
+        )
+        return ConversationHandler.END
     else:
         bot.send_message(
             uid,
@@ -132,13 +140,10 @@ def register(dispatcher: Dispatcher) -> None:
         ],
         states={
             WHOM_TO_SEND: [
-                MessageHandler(
-                    Filters.text,
-                    recipients,
-                    pass_user_data=True
-                )
+                MessageHandler(Filters.text, recipients, pass_user_data=True)
             ],
             PREPARE_MAILING: [
+                RegexHandler(BACK_KEY[0], recipients, pass_user_data=True),
                 MessageHandler(
                     Filters.text,
                     prepare_mailing,
