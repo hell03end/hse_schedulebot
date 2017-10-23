@@ -29,7 +29,7 @@ def on_schedule(bot: Bot, update: Update) -> str:
 
 @log
 @typing
-def on_back(bot: Bot, update: Update) -> None:
+def on_back(bot: Bot, update: Update) -> int:
     bot.send_message(
         update.message.from_user.id,
         MESSAGES['on_back:msg'],

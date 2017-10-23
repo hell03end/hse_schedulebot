@@ -56,7 +56,7 @@ class Users(BaseModel):
     def set_city(self, city: str, update: bool=False) -> None:
         if self.city and not update:
             return
-        if city not in CITIES.keys():
+        if city not in CITIES:
             raise ValueError("Where is no HSE in this city: {city}")
         self.city = CITIES[city]
 
