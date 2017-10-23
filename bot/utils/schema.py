@@ -44,7 +44,7 @@ LESSONS_TIMETABLE = {
 CITIES = {
     r'Москва': "moscow",
     r'Москва:Дубки': "moscow:dubki",
-    r'Санкт Петербург': "piter",
+    r'Санкт-Петербург': "piter",
     r'Нижний Новгород': "novgorod",
     r'Пермь': "perm"
 }
