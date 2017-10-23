@@ -11,9 +11,10 @@ TABLE_MAPPING = (
 )
 
 MESSAGE_SCHEMA = \
-    "{time}\n**{name}**\n__{type}__\n{teacher}\n{room}, `{place}`"
+    "{time}\n<b>{name}</b>\n<i>{type}</i>\n{teacher}\n{room}, " \
+    "<code>{place}</code>"
 
-POST_SCHEMA = "**{date}**\n~~~~~~~~~~~~~~~\n{messages}"
+POST_SCHEMA = "<b>{date}</b>\n~~~~~~~~~~~~~~~~~~~~\n{messages}"
 
 LESSONS_TIMETABLE = {
     'moscow': {
