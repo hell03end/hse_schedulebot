@@ -1,1 +1,2 @@
-from bot.tools import init_db, register, run, save_state
+from bot.tools import init_db, run
+from bot.models import update_schedules
