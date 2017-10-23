@@ -56,9 +56,9 @@ class Users(BaseModel):
     def set_city(self, city: str, update: bool=False) -> None:
         if self.city and not update:
             return
-        if city.lower() not in CITIES:
+        if city not in CITIES.keys():
             raise ValueError("Where is no HSE in this city: {city}")
-        self.city = city.lower()
+        self.city = CITIES[city]
 
     def set_status(self, email: str) -> None:
         self.student = Users.is_student(email)

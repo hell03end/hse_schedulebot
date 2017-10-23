@@ -51,10 +51,10 @@ LESSONS_TIMETABLE = {
 }
 
 CITIES = {
-    'moscow',
-    'piter',
-    'novgorod',
-    'perm'
+    r'Москва': "moscow",
+    r'Санкт Питербург': "piter",
+    r'Нижний Новгород': "novgorod",
+    r'Пермь': "perm"
 }
 
 DAYS = (
