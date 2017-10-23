@@ -1,7 +1,7 @@
 from bot.logger import log
 from bot.models import Lessons, Users
 from bot.service.common_handlers import send_cancel, start
-from bot.utils.functions import is_back, is_cancelled
+from bot.utils.functions import is_back, is_cancelled, typing
 from bot.utils.keyboards import (BACK_KEY, SCHEDULE_KEYBOARD, START_KEYBOARD,
                                  WEEK_KEYBOARD)
 from bot.utils.messages import MESSAGES
@@ -17,6 +17,7 @@ MESSAGES = MESSAGES['schedule:week']
 
 
 @log
+@typing
 def on_week(bot: Bot, update: object) -> str:
     bot.send_message(
         update.message.from_user.id,
@@ -27,6 +28,7 @@ def on_week(bot: Bot, update: object) -> str:
 
 
 @log
+@typing
 def choose_dow(bot: Bot, update: object) -> int:
     """ Send schedule for given Day Of Week (dow) """
     uid = update.message.from_user.id

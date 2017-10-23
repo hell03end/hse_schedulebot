@@ -3,7 +3,7 @@ from datetime import datetime
 from bot.logger import log
 from bot.models import Lessons, Users
 from bot.service.common_handlers import send_cancel, start
-from bot.utils.functions import is_cancelled
+from bot.utils.functions import is_cancelled, typing
 from bot.utils.keyboards import BACK_KEY, SCHEDULE_KEYBOARD, START_KEYBOARD
 from bot.utils.messages import MESSAGES
 from bot.utils.schema import DAY_MAPPING
@@ -16,6 +16,7 @@ MESSAGES = MESSAGES['schedule:day']
 
 
 @log
+@typing
 def on_day(bot: Bot, update: object, next_day: bool=False) -> int:
     uid = update.message.from_user.id
     chat_id = update.message.chat.id
@@ -41,6 +42,7 @@ def on_day(bot: Bot, update: object, next_day: bool=False) -> int:
 
 
 @log
+@typing
 def on_tomorrow(bot: Bot, update: object) -> None:
     return on_day(bot, update, next_day=True)
 

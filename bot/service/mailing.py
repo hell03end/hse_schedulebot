@@ -4,7 +4,7 @@ from threading import Thread
 from bot.logger import log
 from bot.models import Users
 from bot.service.common_handlers import start
-from bot.utils.functions import is_cancelled
+from bot.utils.functions import is_cancelled, typing
 from bot.utils.keyboards import BACK_KEY, MAILING_WHOM_KEYBOARD, START_KEYBOARD
 from bot.utils.messages import MESSAGES
 from bot.utils.states import PREPARE_MAILING, WHOM_TO_SEND
@@ -19,6 +19,7 @@ MESSAGES = MESSAGES['service:mailing']
 
 
 @log
+@typing
 def do_mailing(bot: Bot, recipients: object, msg: str, author: str) -> None:
     pool = Pool(10)
     data = set()
@@ -30,6 +31,7 @@ def do_mailing(bot: Bot, recipients: object, msg: str, author: str) -> None:
 
 
 @log
+@typing
 def whom_to_send(bot: Bot, update: object, user_data: dict) -> (int, str):
     uid = update.message.from_user.id
     if uid in ADMINS:
@@ -46,6 +48,7 @@ def whom_to_send(bot: Bot, update: object, user_data: dict) -> (int, str):
 
 
 @log
+@typing
 def recipients(bot: Bot, update: object, user_data: dict) -> (int, str):
     uid = update.message.from_user.id
     message = update.message.text
@@ -72,6 +75,7 @@ def recipients(bot: Bot, update: object, user_data: dict) -> (int, str):
 
 
 @log
+@typing
 def prepare_mailing(bot: Bot, update: object, user_data: dict) -> (int, str):
     uid = update.message.from_user.id
     message = update.message.text

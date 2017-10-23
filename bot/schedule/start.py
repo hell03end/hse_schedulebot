@@ -1,6 +1,7 @@
 from bot.logger import log
 from bot.service.common_handlers import start
-from bot.utils.keyboards import SCHEDULE_KEYBOARD, START_KEYBOARD, BACK_KEY
+from bot.utils.functions import typing
+from bot.utils.keyboards import BACK_KEY, SCHEDULE_KEYBOARD, START_KEYBOARD
 from bot.utils.messages import MESSAGES
 from telegram import ReplyKeyboardMarkup
 from telegram.bot import Bot
@@ -11,6 +12,7 @@ MESSAGES = MESSAGES['schedule:start']
 
 
 @log
+@typing
 def on_schedule(bot: Bot, update: object) -> None:
     bot.send_message(
         update.message.from_user.id,
@@ -20,6 +22,7 @@ def on_schedule(bot: Bot, update: object) -> None:
 
 
 @log
+@typing
 def on_back(bot: Bot, update: object) -> None:
     bot.send_message(
         update.message.from_user.id,
