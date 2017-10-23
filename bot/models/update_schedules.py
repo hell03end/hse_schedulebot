@@ -92,5 +92,5 @@ def get_and_save(user_info: Iterable) -> None:
 
 
 def main() -> None:
-    pool = Pool(5)
+    pool = Pool(2)
     pool.map(get_and_save, get_users(), chunksize=100)
