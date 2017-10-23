@@ -20,7 +20,6 @@ MESSAGES = MESSAGES['service:mailing']
 
 
 @log
-@typing
 def do_mailing(bot: Bot, recipients: object, msg: str, author: int) -> None:
     pool = Pool(10)
     data = set()
