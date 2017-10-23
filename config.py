@@ -16,6 +16,9 @@ TOKENS = {
     'TEST': os.environ.get("API_KEY_TELEGRAM_SCHEDULE_BOT")
 }
 
-ADMINS = (42928638, )
+DIMA = 42928638
+BOGDAN = 56631662
+
+ADMINS = (BOGDAN, DIMA)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
