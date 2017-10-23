@@ -80,8 +80,6 @@ def get_email(bot: Bot, update: Update, user_data: dict) -> (int, str):
         return INCORRECT_EMAIL
 
     user_data['reg_email'] = message
-    user_data['reg_tg_id'] = update.message.from_user.id
-    user_data['reg_username'] = update.message.from_user.username
 
     bot.send_message(chat_id, MESSAGES['get_email:correct'], ParseMode.HTML)
     return ask_city(bot, update)
@@ -90,7 +88,7 @@ def get_email(bot: Bot, update: Update, user_data: dict) -> (int, str):
 @log
 @typing
 def get_city(bot: Bot, update: Update, user_data: dict,
-             verbose: bool=False) -> (int, str):
+             verbose: bool = False) -> (int, str):
     chat_id = update.message.chat.id
     message = update.message.text
     if is_cancelled(message):
@@ -115,11 +113,11 @@ def get_city(bot: Bot, update: Update, user_data: dict,
 def add_user(bot: Bot, update: Update, user_data: dict) -> (int, str):
     uid = update.message.from_user.id
     message = update.message.text
+    username = update.message.from_user.username
     if is_cancelled(message):
         return send_cancel(bot, uid)
 
-    user = Users(telegram_id=user_data['reg_tg_id'],
-                 username=user_data['reg_username'])
+    user = Users.create(telegram_id=uid, username=username)
     user.set_city(user_data['reg_city'])
     user.set_email(user_data['reg_email'])
     user.set_status(user_data['reg_email'])
@@ -128,7 +126,7 @@ def add_user(bot: Bot, update: Update, user_data: dict) -> (int, str):
     thread = Thread(
         name=f"get_and_save::{uid}, {user.email}",
         target=get_and_save,
-        args=((user.email, user.student, uid), )
+        args=((user.email, user.student, uid),)
     )
     thread.start()
 
@@ -155,6 +153,7 @@ def show_about(bot: Bot, update: Update) -> int:
 @typing
 def start(bot: Bot, update: Update) -> None:
     uid = update.message.from_user.id
+    username = update.message.from_user.username
     user = None
     try:
         user = Users.get(Users.telegram_id == uid)
@@ -168,9 +167,11 @@ def start(bot: Bot, update: Update) -> None:
             reply_markup=ReplyKeyboardMarkup(REGISTER_KEYBOARD, True)
         )
         return
+    user.username = username
+    user.save()
     bot.send_message(
         uid,
-        MESSAGES['start:greetings'].format(user.username),
+        MESSAGES['start:greetings'],
         ParseMode.HTML,
         reply_markup=ReplyKeyboardMarkup(START_KEYBOARD, True)
     )
@@ -199,7 +200,7 @@ def register(dispatcher: Dispatcher) -> None:
                 )
             ],
         },
-        fallbacks=(CommandHandler('start', start), )
+        fallbacks=(CommandHandler('start', start),)
     )
 
     dispatcher.add_handler(CommandHandler('start', start))
