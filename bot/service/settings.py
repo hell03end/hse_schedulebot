@@ -68,8 +68,12 @@ def choose_menu(bot: Bot, update: Update) -> (int, str):
             reply_markup=ReplyKeyboardMarkup(CITIES_KEYBOARD_BACK, True)
         )
         return ASK_CITY
-    # elif message == SETTINGS_KEYBOARD[2][0]:
-    #     pass  # TODO: mail to developer
+    elif message == SETTINGS_KEYBOARD[2][0]:
+        bot.send_message(
+            chat_id,
+            MESSAGES['choose_menu:feedback'],
+            ParseMode.HTML
+        )
     else:
         bot.send_message(
             chat_id,

@@ -43,6 +43,8 @@ MESSAGES = {
         'on_settings:unregistered': "Пожалуйста, зарегистрируйтесь!",
         'current': "Текущие настройки:\nemail: {}\nгород: {}",
         'choose_menu:unknown': "Этого я не умею :(",
+        'choose_menu:feedback': "Свой отзыв/предложение/вопрос пиши в: "
+            "https://t.me/joinchat/A2Ahbgvbg3mq2b_WnDvWVw",
         'on_back:msg': "Вот предыдущее меню.",
         'choose_menu:ask_email': "Введите новый адресс корпоративной почты:",
         'choose_menu:ask_city': "Введите свой город:",
