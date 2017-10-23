@@ -7,7 +7,7 @@
 
 Telegram bot to view the schedule of students/lecturers of the Scientific Research University [Higher School of Economics](https://www.hse.ru/). It uses [RUZ API](https://pypi.org/project/hse-ruz/).
 
-**[Add on Telegram](https://t.me/joinchat/hseschedule_bot)**.
+**[Add on Telegram](https://t.me/hseschedule_bot)**.
 
 **Any questions?** Please, [create an issue](https://github.com/evstratbg/hse_schedulebot/issues/new) or write ask a question in [Telegram Group](https://t.me/joinchat/A2Ahbgvbg3mq2b_WnDvWVw).
 
