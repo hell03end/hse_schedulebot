@@ -123,6 +123,7 @@ def get_email(bot: Bot, update: Update) -> (int, str):
         user.save()
 
         thread = Thread(
+            name=f"get_and_save::{uid}, {message}",
             target=get_and_save,
             args=((user.email, user.student), )
         )
