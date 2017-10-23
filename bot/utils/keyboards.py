@@ -22,7 +22,7 @@ CITIES_KEYBOARD_BACK.append(BACK_KEY)
 
 SETTINGS_KEYBOARD = [
     ['О боте'],
-    ['email', 'город'],
+    ['Email', 'Город'],
     # ['Добавить Электрички'],
     # ['Написать разработчикам']
 ]
@@ -47,7 +47,9 @@ MAILING_WHOM_KEYBOARD = [
 ]
 MAILING_WHOM_KEYBOARD.append(BACK_KEY)
 
-WEEK_KEYBOARD_STUDENT = WEEK_KEYBOARD.copy().insert(0, ['Найти преподователя'])
+SCHEDULE_KEYBOARD_STUDENT = SCHEDULE_KEYBOARD.copy()
+SCHEDULE_KEYBOARD_STUDENT.insert(0, ['Найти преподователя'])
 
 START_KEYBOARD_STUDENT = START_KEYBOARD
-START_KEYBOARD_STUDENT_TRAINS = START_KEYBOARD.copy().insert(1, ['Электрички'])
+START_KEYBOARD_STUDENT_TRAINS = START_KEYBOARD.copy()
+START_KEYBOARD_STUDENT_TRAINS.insert(1, ['Электрички'])
