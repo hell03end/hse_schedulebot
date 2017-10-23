@@ -58,4 +58,3 @@ def choose_dow(bot: Bot, update: Update) -> (int, str):
                                           lessons.friday, lessons.saturday]))
         send_params['text'] = schedule[message]
         bot.send_message(**send_params)
-    return on_week(bot, update)
