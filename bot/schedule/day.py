@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from bot.logger import log
-from bot.models import Lessons, Users
 from bot.schedule.commons import get_lessons
 from bot.service.common_handlers import send_cancel
 from bot.utils.functions import is_cancelled, typing
@@ -9,7 +8,6 @@ from bot.utils.messages import MESSAGES
 from bot.utils.schema import DAY_MAPPING
 from telegram import ParseMode
 from telegram.bot import Bot
-from telegram.ext import ConversationHandler
 from telegram.update import Update
 
 MESSAGES = MESSAGES['schedule:day']

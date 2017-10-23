@@ -1,5 +1,4 @@
 from bot.logger import log
-from bot.models import Lessons, Users
 from bot.schedule.commons import get_lessons
 from bot.service.common_handlers import send_cancel
 from bot.utils.functions import is_back, is_cancelled, typing
@@ -9,7 +8,6 @@ from bot.utils.schema import DAY_MAPPING
 from bot.utils.states import DAY_OF_WEEK, SCHEDULE
 from telegram import ParseMode, ReplyKeyboardMarkup
 from telegram.bot import Bot
-from telegram.ext import MessageHandler
 from telegram.update import Update
 
 MESSAGES = MESSAGES['schedule:week']

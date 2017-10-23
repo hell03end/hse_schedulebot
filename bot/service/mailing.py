@@ -21,14 +21,17 @@ MESSAGES = MESSAGES['service:mailing']
 
 @log
 @typing
-def do_mailing(bot: Bot, recipients: object, msg: str, author: str) -> None:
+def do_mailing(bot: Bot, recipients: object, msg: str, author: int) -> None:
     pool = Pool(10)
     data = set()
     for recipient in recipients:
-        # maybe markdown?
         data.add((recipient.telegram_id, msg, ParseMode.HTML))
     result = pool.starmap(bot.send_message, data)
-    bot.send_message(author, MESSAGES['do_mailing:end'].format(len(result)))
+    bot.send_message(
+        author,
+        MESSAGES['do_mailing:end'].format(len(result)),
+        ParseMode.HTML
+    )
 
 
 @log
@@ -39,7 +42,8 @@ def whom_to_send(bot: Bot, update: Update, user_data: dict) -> (int, str):
         send_params = {
             'text': MESSAGES['whom_to_send:ask'],
             'chat_id': uid,
-            'reply_markup': ReplyKeyboardMarkup(MAILING_WHOM_KEYBOARD)
+            'reply_markup': ReplyKeyboardMarkup(MAILING_WHOM_KEYBOARD, True),
+            'parse_mode': ParseMode.HTML
         }
         user_data['whom_to_send_sp'] = send_params
 
@@ -66,7 +70,8 @@ def recipients(bot: Bot, update: Update, user_data: dict) -> (int, str):
     send_params = {
         'text': MESSAGES['recipients:ask'],
         'chat_id': uid,
-        'reply_markup': ReplyKeyboardMarkup([BACK_KEY], resize_keyboard=1)
+        'reply_markup': ReplyKeyboardMarkup([BACK_KEY], resize_keyboard=True),
+        'parse_mode': ParseMode.HTML
     }
 
     user_data['recipients_sp'] = send_params
@@ -91,15 +96,24 @@ def prepare_mailing(bot: Bot, update: Update, user_data: dict) -> (int, str):
         recipients = recipients.where(Users.is_student == 0)
 
     if recipients.exists():
-        t = Thread(target=do_mailing, args=(bot, recipients, message, uid))
-        t.start()
+        thread = Thread(
+            name=f"prepare_mailing::{uid}",
+            target=do_mailing,
+            args=(bot, recipients, message, uid)
+        )
+        thread.start()
         bot.send_message(
             uid,
             MESSAGES['prepare_mailing:start'],
-            reply_markup=ReplyKeyboardMarkup(START_KEYBOARD)
+            ParseMode.HTML,
+            reply_markup=ReplyKeyboardMarkup(START_KEYBOARD, True)
         )
     else:
-        bot.send_message(uid, MESSAGES['prepare_mailing:empty'])
+        bot.send_message(
+            uid,
+            MESSAGES['prepare_mailing:empty'],
+            ParseMode.HTML
+        )
     return ConversationHandler.END
 
 

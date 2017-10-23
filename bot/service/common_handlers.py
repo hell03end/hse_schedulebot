@@ -1,3 +1,4 @@
+import logging
 from threading import Thread
 
 from bot.logger import log
@@ -9,7 +10,7 @@ from bot.utils.keyboards import (CITIES_KEYBOARD, REGISTER_KEYBOARD,
 from bot.utils.messages import MESSAGES, TRIGGERS
 from bot.utils.schema import CITIES
 from bot.utils.states import ASK_CITY, ASK_EMAIL, INCORRECT_EMAIL
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram import ParseMode, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.bot import Bot
 from telegram.ext import (CommandHandler, ConversationHandler, Filters,
                           MessageHandler, RegexHandler)
@@ -22,13 +23,14 @@ MESSAGES = MESSAGES['service:common_handlers']
 @log
 @typing
 def ask_email(bot: Bot, update: Update) -> (int, str):
-    uid = update.message.from_user.id
+    chat_id = update.message.chat.id
     if is_cancelled(update.message.text):
-        return send_cancel(bot, uid)
+        return send_cancel(bot, chat_id)
 
     bot.send_message(
-        uid,
-        text=MESSAGES['ask_email:ask'],
+        chat_id,
+        MESSAGES['ask_email:ask'],
+        ParseMode.HTML,
         reply_markup=ReplyKeyboardRemove()
     )
     return ASK_EMAIL
@@ -37,13 +39,14 @@ def ask_email(bot: Bot, update: Update) -> (int, str):
 @log
 @typing
 def ask_city(bot: Bot, update: Update) -> (int, str):
-    uid = update.message.from_user.id
+    chat_id = update.message.chat.id
     if is_cancelled(update.message.text):
-        return send_cancel(bot, uid)
+        return send_cancel(bot, chat_id)
 
     bot.send_message(
-        uid,
-        text=MESSAGES['ask_city:ask'],
+        chat_id,
+        MESSAGES['ask_city:ask'],
+        ParseMode.HTML,
         reply_markup=ReplyKeyboardMarkup(CITIES_KEYBOARD, True)
     )
     return ASK_CITY
@@ -53,7 +56,8 @@ def ask_city(bot: Bot, update: Update) -> (int, str):
 def send_cancel(bot: Bot, uid: int) -> int:
     bot.send_message(
         uid,
-        text=MESSAGES['cancel'],
+        MESSAGES['cancel'],
+        ParseMode.HTML,
         reply_markup=ReplyKeyboardMarkup(START_KEYBOARD, True)
     )
     return ConversationHandler.END
@@ -62,38 +66,47 @@ def send_cancel(bot: Bot, uid: int) -> int:
 @log
 @typing
 def get_email(bot: Bot, update: Update, user_data: dict) -> (int, str):
-    uid = update.message.from_user.id
+    chat_id = update.message.chat.id
     message = update.message.text
     if is_cancelled(message):
-        return send_cancel(bot, uid)
+        return send_cancel(bot, chat_id)
 
     if not Users.check_email(message):
-        bot.send_message(uid, text=MESSAGES['get_email:incorrect'])
+        bot.send_message(
+            chat_id,
+            MESSAGES['get_email:incorrect'],
+            ParseMode.HTML
+        )
         return INCORRECT_EMAIL
 
     user_data['reg_email'] = message
-    user_data['reg_tg_id'] = uid
+    user_data['reg_tg_id'] = update.message.from_user.id
     user_data['reg_username'] = update.message.from_user.username
 
-    bot.send_message(uid, text=MESSAGES['get_email:correct'])
+    bot.send_message(chat_id, MESSAGES['get_email:correct'], ParseMode.HTML)
     return ask_city(bot, update)
 
 
 @log
 @typing
-def get_city(bot: Bot, update: Update, user_data: dict) -> (int, str):
-    uid = update.message.from_user.id
+def get_city(bot: Bot, update: Update, user_data: dict,
+             verbose: bool=False) -> (int, str):
+    chat_id = update.message.chat.id
     message = update.message.text
     if is_cancelled(message):
-        return send_cancel(bot, uid)
+        return send_cancel(bot, chat_id)
 
     if message not in CITIES:
-        bot.send_message(uid, text=MESSAGES['get_city:incorrect'])
+        bot.send_message(
+            chat_id,
+            MESSAGES['get_city:incorrect'],
+            ParseMode.HTML
+        )
         message = "Москва"  # default value
-
     user_data['reg_city'] = message
 
-    bot.send_message(uid, text=MESSAGES['get_city:msg'])
+    if verbose:
+        bot.send_message(chat_id, MESSAGES['get_city:msg'], ParseMode.HTML)
     return add_user(bot, update, user_data)
 
 
@@ -110,7 +123,7 @@ def add_user(bot: Bot, update: Update, user_data: dict) -> (int, str):
     user.set_city(user_data['reg_city'])
     user.set_email(user_data['reg_email'])
     user.set_status(user_data['reg_email'])
-    user.save()
+    user.save()  # TODO: check email is valid
 
     thread = Thread(
         name=f"get_and_save::{uid}, {user.email}",
@@ -121,7 +134,8 @@ def add_user(bot: Bot, update: Update, user_data: dict) -> (int, str):
 
     bot.send_message(
         uid,
-        text=MESSAGES['add_user:msg'],
+        MESSAGES['add_user:msg'],
+        ParseMode.HTML,
         reply_markup=ReplyKeyboardMarkup(START_KEYBOARD, True)
     )
     return ConversationHandler.END
@@ -132,7 +146,8 @@ def add_user(bot: Bot, update: Update, user_data: dict) -> (int, str):
 def show_about(bot: Bot, update: Update) -> int:
     bot.send_message(
         update.message.from_user.id,
-        MESSAGES['show_about']
+        MESSAGES['show_about'],
+        ParseMode.HTML
     )
 
 
@@ -144,17 +159,19 @@ def start(bot: Bot, update: Update) -> None:
     try:
         user = Users.get(Users.telegram_id == uid)
     except BaseException as excinfo:
-        print(excinfo)
+        logging.debug(excinfo)
     if not user:
         bot.send_message(
             uid,
             MESSAGES['start:greetings_new'],
+            ParseMode.HTML,
             reply_markup=ReplyKeyboardMarkup(REGISTER_KEYBOARD, True)
         )
         return
     bot.send_message(
         uid,
         MESSAGES['start:greetings'].format(user.username),
+        ParseMode.HTML,
         reply_markup=ReplyKeyboardMarkup(START_KEYBOARD, True)
     )
 
@@ -170,7 +187,16 @@ def register(dispatcher: Dispatcher) -> None:
                 MessageHandler(Filters.text, get_email, pass_user_data=True)
             ],
             ASK_CITY: [
-                MessageHandler(Filters.text, get_city, pass_user_data=True)
+                MessageHandler(
+                    Filters.text,
+                    lambda bot, update, user_data: get_city(
+                        bot,
+                        update,
+                        user_data,
+                        verbose=True
+                    ),
+                    pass_user_data=True
+                )
             ],
         },
         fallbacks=(CommandHandler('start', start), )
