@@ -49,9 +49,12 @@ MESSAGES = {
     },
     'schedule:start': {
         'on_schedule:ask': "На какой день показывать?",
-        'on_back:msg': "Вот предыдущее меню."
+        'on_back:msg': "Вот предыдущее меню.",
+        'choose_menu:back': "Вот предыдущее меню."
     }
 }
 
 # regexpr triggers
-TRIGGERS = {}
+TRIGGERS = {
+    'info': r"(инфо|о боте|функции)"
+}
