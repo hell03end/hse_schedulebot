@@ -14,12 +14,14 @@ api = RUZ()
 
 def get_emails() -> Generator:
     """ return emails from Users database """
-    return map(lambda user: user.email, Users)
+    return map(lambda user: (user.email, user.student), Users)
 
 
-def fetch_schedule(email: str, api: object=api, **kwargs) -> list:
+def fetch_schedule(email: str, api: object=api, is_student: bool=True) -> list:
     """ download schedule for each email """
-    return api.schedule(email, **kwargs)
+    if is_student:
+        return api.schedule(email)
+    return api.schedule(email, receiverType=1)
 
 
 def format_lessons(lessons: Collection, schema: dict=MESSAGE_SCHEMA,
@@ -70,9 +72,6 @@ def update_schedules(schedules: (list, tuple), email: str) -> None:
     """ format and save (update) schedules to database """
     student = Users.get(email=email)
     lessons_obj, _ = Lessons.get_or_create(student=student)
-    if not schedules:
-        lessons_obj.delete_instance()
-        return
     schedule = format_schedule(schedules)
 
     lessons = dict(zip(TABLE_MAPPING, schedule))
@@ -81,7 +80,7 @@ def update_schedules(schedules: (list, tuple), email: str) -> None:
 
 def get_and_save(email: str) -> None:
     """ pipeline for getting and saving schedules """
-    update_schedules(fetch_schedule(email), email)
+    update_schedules(fetch_schedule(email[0], is_student=email[1]), email[0])
 
 
 def main() -> None:
