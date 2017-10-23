@@ -4,6 +4,7 @@ from functools import wraps
 
 
 def log(func: Callable) -> Callable:
+    """ Log function entering, arguments and exiting """
     logger = logging.getLogger(func.__module__)
 
     @wraps(func)
@@ -11,7 +12,6 @@ def log(func: Callable) -> Callable:
         logger.info("Entering: {}".format(func.__name__))
         for arg in args:
             logger.info(arg)
-        func._logger = logger
         result = func(*args, **kwargs)
         logger.info("Exiting: {}".format(func.__name__))
         return result
