@@ -40,14 +40,13 @@ def whom_to_send(bot: Bot, update: Update, user_data: dict) -> (int, str):
     uid = update.message.from_user.id
     if uid in ADMINS:
         send_params = {
-            'text': MESSAGES['whom_to_send:ask'],
             'chat_id': uid,
             'reply_markup': ReplyKeyboardMarkup(MAILING_WHOM_KEYBOARD, True),
             'parse_mode': ParseMode.HTML
         }
         user_data['whom_to_send_sp'] = send_params
 
-        bot.send_message(**send_params)
+        bot.send_message(text=MESSAGES['whom_to_send:ask'], **send_params)
         return WHOM_TO_SEND
     return ConversationHandler.END
 
@@ -77,7 +76,7 @@ def recipients(bot: Bot, update: Update, user_data: dict) -> (int, str):
     else:
         bot.send_message(
             uid,
-            MESSAGES['whom_to_send:spam'],
+            MESSAGES['whom_to_send:spam'](message),
             ParseMode.HTML
         )
         bot.send_message(**user_data['whom_to_send_sp'])

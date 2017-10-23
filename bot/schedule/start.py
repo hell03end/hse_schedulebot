@@ -33,7 +33,7 @@ def on_schedule(bot: Bot, update: Update) -> str:
 def on_spam(bot: Bot, update: Update) -> str:
     bot.send_message(
         update.message.chat.id,
-        MESSAGES['on_spam'],
+        MESSAGES['on_spam'](update.message.text),
         ParseMode.HTML
     )
     return SCHEDULE

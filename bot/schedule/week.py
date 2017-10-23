@@ -54,7 +54,7 @@ def choose_dow(bot: Bot, update: Update) -> (int, str, None):
     if message not in schedule:
         bot.send_message(
             chat_id,
-            MESSAGES['choose_dow:spam'],
+            MESSAGES['choose_dow:spam'](message),
             ParseMode.HTML
         )
         return

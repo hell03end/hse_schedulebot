@@ -77,7 +77,7 @@ def choose_menu(bot: Bot, update: Update) -> (int, str):
     else:
         bot.send_message(
             chat_id,
-            MESSAGES['choose_menu:spam'],
+            MESSAGES['choose_menu:spam'](message),
             ParseMode.HTML,
             reply_markup=ReplyKeyboardMarkup(SETTINGS_KEYBOARD, True)
         )
