@@ -70,6 +70,10 @@ def format_schedule(schedule: Collection, **kwargs) -> list:
 
 def update_schedules(schedules: (list, tuple), email: str) -> None:
     """ format and save (update) schedules to database """
+    if schedules is None:
+        raise ValueError("Wrong schedules!")
+    elif not schedules:
+        return
     student = Users.get(email=email)
     lessons_obj, _ = Lessons.get_or_create(student=student)
     schedule = format_schedule(schedules)
