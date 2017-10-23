@@ -5,7 +5,8 @@ from bot.models import Users
 from bot.models.update_schedules import get_and_save
 from bot.service.common_handlers import send_cancel, start
 from bot.utils.functions import is_back, is_cancelled, typing
-from bot.utils.keyboards import (BACK_KEY, CITIES_KEYBOARD, SETTINGS_KEYBOARD,
+from bot.utils.keyboards import (BACK_KEY, CITIES_KEYBOARD_BACK,
+                                 REGISTER_KEYBOARD, SETTINGS_KEYBOARD,
                                  START_KEYBOARD)
 from bot.utils.messages import MESSAGES
 from bot.utils.schema import CITIES
@@ -31,14 +32,10 @@ def on_settings(bot: Bot, update: Update) -> str:
         bot.send_message(
             uid,
             MESSAGES['on_settings:unregistered'],
-            reply_markup=ReplyKeyboardMarkup(SETTINGS_KEYBOARD, True)
+            reply_markup=ReplyKeyboardMarkup(REGISTER_KEYBOARD, True)
         )
         return ASK_EMAIL
-    bot.send_message(
-        uid,
-        MESSAGES['on_settings:current'].format(user.email, user.city),
-        reply_markup=ReplyKeyboardMarkup(SETTINGS_KEYBOARD, True)
-    )
+    send_current(bot, uid, user.email, user.city)
     return SETTINGS
 
 
@@ -50,7 +47,7 @@ def choose_menu(bot: Bot, update: Update) -> (int, str):
     message = update.message.text
     if is_cancelled(message):
         return send_cancel(bot, uid)
-    if is_back(message):
+    elif is_back(message):
         return on_back(bot, update)
 
     if message == SETTINGS_KEYBOARD[0][0]:
@@ -59,14 +56,14 @@ def choose_menu(bot: Bot, update: Update) -> (int, str):
         bot.send_message(
             uid,
             text=MESSAGES['choose_menu:ask_email'],
-            reply_markup=ReplyKeyboardRemove()
+            reply_markup=ReplyKeyboardMarkup([BACK_KEY], True)
         )
         return ASK_EMAIL
     elif message == SETTINGS_KEYBOARD[1][1]:
         bot.send_message(
             uid,
             text=MESSAGES['choose_menu:ask_city'],
-            reply_markup=ReplyKeyboardMarkup(CITIES_KEYBOARD, True)
+            reply_markup=ReplyKeyboardMarkup(CITIES_KEYBOARD_BACK, True)
         )
         return ASK_CITY
     elif message == SETTINGS_KEYBOARD[2][0]:
@@ -92,14 +89,28 @@ def on_back(bot: Bot, update: Update) -> int:
 
 
 @log
+def send_current(bot: Bot, uid: int, email: str=None, city: str=None) -> None:
+    bot.send_message(
+        uid,
+        MESSAGES['current'].format(email, city),
+        reply_markup=ReplyKeyboardMarkup(SETTINGS_KEYBOARD, True)
+    )
+
+
+@log
 @typing
 def get_email(bot: Bot, update: Update) -> (int, str):
     uid = update.message.from_user.id
     message = update.message.text
     if is_cancelled(message):
         return send_cancel(bot, uid)
-
-    if not Users.check_email(message):
+    elif is_back(message):
+        bot.send_message(
+            uid,
+            MESSAGES['get_email:back'],
+            reply_markup=ReplyKeyboardMarkup(SETTINGS_KEYBOARD, True)
+        )
+    elif not Users.check_email(message):
         bot.send_message(
             uid,
             text=MESSAGES['get_email:incorrect'],
@@ -113,15 +124,12 @@ def get_email(bot: Bot, update: Update) -> (int, str):
 
         thread = Thread(
             target=get_and_save,
-            kwargs={'email': (user.email, user.student)}
+            args=((user.email, user.student), )
         )
         thread.start()
 
-        bot.send_message(
-            uid,
-            text=MESSAGES['get_email:correct'],
-            reply_markup=ReplyKeyboardMarkup(SETTINGS_KEYBOARD, True)
-        )
+        bot.send_message(uid, text=MESSAGES['get_email:correct'])
+        send_current(bot, uid, user.email, user.city)
     return SETTINGS
 
 
@@ -132,8 +140,13 @@ def get_city(bot: Bot, update: Update) -> (int, str):
     message = update.message.text
     if is_cancelled(message):
         return send_cancel(bot, uid)
-
-    if message not in CITIES:
+    elif is_back(message):
+        bot.send_message(
+            uid,
+            MESSAGES['get_city:back'],
+            reply_markup=ReplyKeyboardMarkup(SETTINGS_KEYBOARD, True)
+        )
+    elif message not in CITIES:
         bot.send_message(
             uid,
             text=MESSAGES['get_city:incorrect'],
@@ -141,13 +154,10 @@ def get_city(bot: Bot, update: Update) -> (int, str):
         )
     else:
         user = Users.get(Users.telegram_id == uid)
-        user.set_city(message)
+        user.set_city(message, update=True)
         user.save()
-        bot.send_message(
-            uid,
-            text=MESSAGES['get_city:correct'],
-            reply_markup=ReplyKeyboardMarkup(SETTINGS_KEYBOARD, True)
-        )
+        bot.send_message(uid, text=MESSAGES['get_city:correct'])
+        send_current(bot, uid, user.email, user.city)
     return SETTINGS
 
 

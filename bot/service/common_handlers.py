@@ -112,11 +112,8 @@ def add_user(bot: Bot, update: Update, user_data: dict) -> (int, str):
     user.set_status(user_data['reg_email'])
     user.save()
 
-    thread = Thread(
-        target=get_and_save,
-        kwargs={'email': (user.email, user.student)}
-    )
-    thread.start()  # update schedules
+    thread = Thread(target=get_and_save, args=((user.email, user.student), ))
+    thread.start()
 
     bot.send_message(
         uid,
