@@ -4,7 +4,7 @@ from bot.schedule.week import choose_dow, on_week
 from bot.service.common_handlers import start
 from bot.utils.functions import typing
 from bot.utils.keyboards import BACK_KEY, SCHEDULE_KEYBOARD, START_KEYBOARD
-from bot.utils.messages import MESSAGES
+from bot.utils.messages import MESSAGES, TRIGGERS
 from bot.utils.states import DAY_OF_WEEK, SCHEDULE
 from telegram import ParseMode, ReplyKeyboardMarkup
 from telegram.bot import Bot
@@ -30,6 +30,17 @@ def on_schedule(bot: Bot, update: Update) -> str:
 
 @log
 @typing
+def on_spam(bot: Bot, update: Update) -> str:
+    bot.send_message(
+        update.message.chat.id,
+        MESSAGES['on_spam'],
+        ParseMode.HTML
+    )
+    return SCHEDULE
+
+
+@log
+@typing
 def on_back(bot: Bot, update: Update) -> int:
     bot.send_message(
         update.message.chat.id,
@@ -48,7 +59,8 @@ def register(dispatcher: Dispatcher) -> None:
                 RegexHandler(SCHEDULE_KEYBOARD[1][0], on_week),
                 RegexHandler(SCHEDULE_KEYBOARD[0][0], on_day),
                 RegexHandler(SCHEDULE_KEYBOARD[0][1], on_tomorrow),
-                RegexHandler(BACK_KEY[0], on_back)
+                RegexHandler(BACK_KEY[0], on_back),
+                RegexHandler(TRIGGERS['all'], on_spam)
             ],
             DAY_OF_WEEK: [MessageHandler(Filters.text, choose_dow)]
         },

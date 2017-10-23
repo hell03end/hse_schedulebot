@@ -46,9 +46,16 @@ def choose_dow(bot: Bot, update: Update) -> (int, str, None):
 
     lessons = get_lessons(uid)
     if not lessons:
-        bot.send_message(chat_id, MESSAGES['on_week:empty'], ParseMode.HTML)
+        bot.send_message(chat_id, MESSAGES['choose_dow:empty'], ParseMode.HTML)
         return
     schedule = dict(zip(DAY_MAPPING, [lessons.monday, lessons.tuesday,
                                       lessons.wednesday, lessons.thursday,
                                       lessons.friday, lessons.saturday]))
+    if message not in schedule:
+        bot.send_message(
+            chat_id,
+            MESSAGES['choose_dow:spam'],
+            ParseMode.HTML
+        )
+        return
     bot.send_message(chat_id, schedule[message], ParseMode.HTML)
