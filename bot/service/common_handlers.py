@@ -109,7 +109,6 @@ def get_city(bot: Bot, update: Update, user_data: dict,
 
 
 @log
-@typing
 def add_user(bot: Bot, update: Update, user_data: dict) -> (int, str):
     uid = update.message.from_user.id
     message = update.message.text
@@ -126,7 +125,7 @@ def add_user(bot: Bot, update: Update, user_data: dict) -> (int, str):
     thread = Thread(
         name=f"get_and_save::{uid}, {user.email}",
         target=get_and_save,
-        args=((user.email, user.student, uid),)
+        args=((user.email, user.is_student, uid),)
     )
     thread.start()
 
