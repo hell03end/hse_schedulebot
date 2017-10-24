@@ -71,8 +71,8 @@ def register(dispatcher: Dispatcher) -> None:
     from telegram.ext import MessageHandler, Filters
     from bot.service.common_handlers import start
 
-    service.register(dispatcher)
     schedule.register(dispatcher)
+    service.register(dispatcher)
     buses.register(dispatcher)
     trains.register(dispatcher)
     dispatcher.add_handler(MessageHandler(Filters.text, start))
@@ -95,6 +95,7 @@ def run(token: str, logger_level: int=0, workers: int=10) -> None:
     import logging
 
     logging.basicConfig(
+        filemode='a',
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         level=logger_level
     )

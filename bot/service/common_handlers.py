@@ -10,7 +10,7 @@ from bot.utils.keyboards import (CITIES_KEYBOARD, REGISTER_KEYBOARD,
                                  START_KEYBOARD)
 from bot.utils.messages import MESSAGES, TRIGGERS
 from bot.utils.schema import CITIES
-from bot.utils.states import ASK_CITY, ASK_EMAIL, INCORRECT_EMAIL
+from bot.utils.states import ASK_CITY, ASK_EMAIL
 from telegram import ParseMode, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.bot import Bot
 from telegram.ext import (CommandHandler, ConversationHandler, Filters,
@@ -30,9 +30,6 @@ def ask_email(bot: Bot, update: Update) -> (int, str):
         send_cancel(bot, chat_id, user_data={
             'reply_markup': ReplyKeyboardMarkup(REGISTER_KEYBOARD, True)
         })
-        return ConversationHandler.END
-    elif is_stopped(message):
-        on_stop(bot, update)
         return ConversationHandler.END
 
     bot.send_message(
@@ -103,7 +100,7 @@ def get_email(bot: Bot, update: Update, user_data: dict) -> (int, str):
             MESSAGES['get_email:incorrect'],
             ParseMode.HTML
         )
-        return INCORRECT_EMAIL
+        return
 
     user_data['reg_email'] = message
 
@@ -256,9 +253,6 @@ def register(dispatcher: Dispatcher) -> None:
             ASK_EMAIL: [
                 MessageHandler(Filters.text, get_email, pass_user_data=True)
             ],
-            INCORRECT_EMAIL: [
-                MessageHandler(Filters.text, get_email, pass_user_data=True)
-            ],
             ASK_CITY: [
                 MessageHandler(
                     Filters.text,
@@ -272,12 +266,11 @@ def register(dispatcher: Dispatcher) -> None:
                 )
             ],
         },
-        fallbacks=(CommandHandler('start', start),),
-        allow_reentry=True
+        fallbacks=(CommandHandler('start', start),)
     )
 
-    dispatcher.add_handler(CommandHandler('start', start))
-    dispatcher.add_handler(CommandHandler('stop', on_stop))
     dispatcher.add_handler(registration)
     dispatcher.add_handler(RegexHandler(REGISTER_KEYBOARD[1][0], show_about))
     dispatcher.add_handler(RegexHandler(TRIGGERS['info'], show_about))
+    dispatcher.add_handler(CommandHandler('start', start))
+    dispatcher.add_handler(CommandHandler('stop', on_stop))

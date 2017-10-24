@@ -91,7 +91,6 @@ def register(dispatcher: Dispatcher) -> None:
             ],
             DAY_OF_WEEK: [MessageHandler(Filters.text, choose_dow)]
         },
-        fallbacks=[CommandHandler('start', start)],
-        allow_reentry=True
+        fallbacks=[CommandHandler('start', start)]
     )
     dispatcher.add_handler(start_schedule)

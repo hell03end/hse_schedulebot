@@ -217,8 +217,7 @@ def register(dispatcher: Dispatcher) -> None:
             ASK_CITY: [MessageHandler(Filters.text, get_city)],
             SETTINGS: [MessageHandler(Filters.text, choose_menu)]
         },
-        fallbacks=(CommandHandler('start', start), ),
-        allow_reentry=True
+        fallbacks=(CommandHandler('start', start), )
     )
     dispatcher.add_handler(settings)
     dispatcher.add_handler(CommandHandler('help', show_about))
