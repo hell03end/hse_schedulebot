@@ -9,7 +9,12 @@ from telegram.update import Update
 
 def is_cancelled(msg: str) -> bool:
     """ Check message is a command, which interrupts workflow """
-    return msg.strip('/').lower() in ('back', 'start')
+    return msg.strip('/').lower() in ('back', 'start', 'stop')
+
+
+def is_stopped(msg: str) -> bool:
+    """ Check message is a stop command """
+    return msg.strip('/').lower() in ('stop')
 
 
 def is_back(msg: str) -> bool:
