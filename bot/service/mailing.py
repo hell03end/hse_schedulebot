@@ -5,7 +5,7 @@ from bot.logger import log
 from bot.models import Users
 from bot.service.common_handlers import start
 from bot.utils.functions import is_cancelled, typing
-from bot.utils.keyboards import BACK_KEY, MAILING_WHOM_KEYBOARD, START_KEYBOARD
+from bot.utils.keyboards import BACK_KEY, MAILING_WHOM_KEYBOARD
 from bot.utils.messages import MESSAGES
 from bot.utils.states import PREPARE_MAILING, WHOM_TO_SEND
 from config import ADMINS
@@ -80,9 +80,9 @@ def recipients(bot: Bot, update: Update, user_data: dict) -> (int, str):
         bot.send_message(
             uid,
             MESSAGES['recipients:back'],
-            ParseMode.HTML,
-            reply_markup=ReplyKeyboardMarkup(START_KEYBOARD, True)
+            ParseMode.HTML
         )
+        start(bot, update)
         return ConversationHandler.END
     else:
         bot.send_message(
@@ -134,9 +134,9 @@ def prepare_mailing(bot: Bot, update: Update, user_data: dict) -> (int, str):
         bot.send_message(
             uid,
             MESSAGES['prepare_mailing:start'],
-            ParseMode.HTML,
-            reply_markup=ReplyKeyboardMarkup(START_KEYBOARD, True)
+            ParseMode.HTML
         )
+        start(bot, update)
     else:
         bot.send_message(
             uid,
