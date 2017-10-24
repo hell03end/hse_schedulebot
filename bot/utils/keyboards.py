@@ -1,3 +1,5 @@
+""" Collection of custom keyboards used in bot """
+
 START_KEYBOARD = [
     ['Расписание'],
     ['Настройки']
@@ -12,7 +14,7 @@ REGISTER_KEYBOARD = [
 
 CITIES_KEYBOARD = [
     ['Москва', 'Москва:Дубки'],
-    ['Санкт Петербург'],
+    ['Санкт-Петербург'],
     ['Пермь'],
     ['Нижний Новгород']
 ]
@@ -24,7 +26,7 @@ SETTINGS_KEYBOARD = [
     ['О боте'],
     ['Email', 'Город'],
     # ['Добавить Электрички'],
-    # ['Написать разработчикам']
+    ['Написать разработчикам']
 ]
 SETTINGS_KEYBOARD.append(BACK_KEY)
 

@@ -28,11 +28,11 @@ class BaseModel(Model):
 class Users(BaseModel):
     telegram_id = IntegerField(unique=1)
     username = CharField(null=True)
-    email = CharField()  # why it is not unique?
-    student = BooleanField(default=True)
+    email = CharField(null=True)
+    is_student = BooleanField(null=True, default=True)
     city = CharField(null=True)
-    dt = DateTimeField(default=dt.now())
     show_trains = BooleanField(null=True, default=False)
+    dt = DateTimeField(default=dt.now())
 
     @staticmethod
     def check_email(email: str) -> bool:
@@ -44,7 +44,7 @@ class Users(BaseModel):
         return True
 
     @staticmethod
-    def is_student(email: str) -> bool:
+    def is_student_email(email: str) -> bool:
         """ check whether email belongs to student or lecturer """
         domain = email.lower().split('@')[-1]  # email should be correct
         if domain == "hse.ru":
@@ -53,15 +53,15 @@ class Users(BaseModel):
             return True
         raise ValueError(f"Wrong domain: {domain}")
 
-    def set_city(self, city: str, update: bool=False) -> None:
-        if self.city and not update:
+    def set_city(self, city: str, is_update: bool=False) -> None:
+        if self.city and not is_update:
             return
         if city not in CITIES:
             raise ValueError("Where is no HSE in this city: {city}")
         self.city = CITIES[city]
 
     def set_status(self, email: str) -> None:
-        self.student = Users.is_student(email)
+        self.is_student = Users.is_student_email(email)
 
     def set_email(self, email: str, is_student: bool=True) -> None:
         if '@' not in email:  # try to correct email address

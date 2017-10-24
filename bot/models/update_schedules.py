@@ -1,5 +1,7 @@
 from collections import Collection, Generator, Iterable
 from multiprocessing import Pool
+from datetime import datetime
+import time
 
 from ruz import RUZ
 
@@ -12,9 +14,9 @@ MESSAGES = MESSAGES['models:update_schedules']
 api = RUZ()
 
 
-def get_emails() -> Generator:
-    """ return emails from Users database """
-    return map(lambda user: (user.email, user.student), Users)
+def get_users() -> Generator:
+    """ return email, (is)student, telegram_id from Users database """
+    return map(lambda u: (u.email, u.is_student, u.telegram_id), Users)
 
 
 def fetch_schedule(email: str, api: object=api, is_student: bool=True) -> list:
@@ -68,25 +70,29 @@ def format_schedule(schedule: Collection, **kwargs) -> list:
     return lessons
 
 
-def update_schedules(schedules: (list, tuple), email: str) -> None:
+def update_schedules(schedules: Iterable, telegram_id: str) -> None:
     """ format and save (update) schedules to database """
-    if schedules is None:
-        raise ValueError("Wrong schedules!")
-    elif not schedules:
-        return
-    student = Users.get(email=email)
+    student = Users.get(telegram_id=telegram_id)
     lessons_obj, _ = Lessons.get_or_create(student=student)
+    if not schedules:
+        lessons_obj.delete_instance()
+        return
     schedule = format_schedule(schedules)
 
     lessons = dict(zip(TABLE_MAPPING, schedule))
-    Lessons.update(**lessons).where(Lessons.id == lessons_obj.id).execute()
+    Lessons.update(**lessons, upd_dt=datetime.now()).where(
+        Lessons.id == lessons_obj.id).execute()
+    time.sleep(0.01)
 
 
-def get_and_save(email: Iterable) -> None:
+def get_and_save(user_info: Iterable) -> None:
     """ pipeline for getting and saving schedules """
-    update_schedules(fetch_schedule(email[0], is_student=email[1]), email[0])
+    update_schedules(
+        schedules=fetch_schedule(user_info[0], is_student=user_info[1]),
+        telegram_id=user_info[2]
+    )
 
 
 def main() -> None:
-    pool = Pool(5)
-    pool.map(get_and_save, get_emails(), chunksize=35)
+    pool = Pool(2)
+    pool.map(get_and_save, get_users(), chunksize=100)

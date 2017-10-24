@@ -42,24 +42,24 @@ class TestUsers:
 
     def test_is_student(self):
         for email in self.students:
-            assert Users.is_student(email)
+            assert Users.is_student_email(email)
         for email in self.lecturers:
-            assert not Users.is_student(email)
+            assert not Users.is_student_email(email)
         for email in INCORRECT_EMAILS:
             with pytest.raises(ValueError) as excinfo:
-                Users.is_student(email)
+                Users.is_student_email(email)
             assert excinfo
 
     def test_set_city(self):
         user = Users()
-        user.set_city("Moscow")
+        user.set_city("Москва")
         assert user.city == "moscow"
-        user.set_city("Piter")
+        user.set_city("Пермь")
         assert user.city == "moscow"
-        user.set_city("Piter", update=True)
-        assert user.city == "piter"
+        user.set_city("Пермь", is_update=True)
+        assert user.city == "perm"
         with pytest.raises(ValueError) as excinfo:
-            user.set_city("Paris", update=True)
+            user.set_city("Paris", is_update=True)
         assert excinfo
 
     def test_set_status(self):
@@ -67,10 +67,10 @@ class TestUsers:
         user = Users()
         for email in self.students:
             user.set_status(email)
-            assert user.student
+            assert user.is_student
         for email in self.lecturers:
             user.set_status(email)
-            assert not user.student
+            assert not user.is_student
         for email in INCORRECT_EMAILS:
             with pytest.raises(ValueError) as excinfo:
                 user.set_status(email)

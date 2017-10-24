@@ -1,14 +1,4 @@
-LESSON_SCHEMA = {
-    'beginLesson': str,
-    'endLesson': str,
-    'discipline': str,
-    'kindOfWork': str,
-    'lecturer': str,
-    'building': str,
-    'auditorium': str,
-    'date': str,
-    'dayOfWeek': int
-}
+""" Collection of schemas, used in bot """
 
 TABLE_MAPPING = (
     'monday',
@@ -21,9 +11,10 @@ TABLE_MAPPING = (
 )
 
 MESSAGE_SCHEMA = \
-    "{time}\n**{name}**\n__{type}__\n{teacher}\n{room}, `{place}`"
+    "{time}\n<b>{name}</b>\n<i>{type}</i>\n{teacher}\n{room}, " \
+    "<code>{place}</code>"
 
-POST_SCHEMA = "**{date}**\n~~~~~~~~~~~~~~~\n{messages}"
+POST_SCHEMA = "<b>{date}</b>\n~~~~~~~~~~~~~~~~~~~~\n{messages}"
 
 LESSONS_TIMETABLE = {
     'moscow': {
@@ -53,7 +44,7 @@ LESSONS_TIMETABLE = {
 CITIES = {
     r'Москва': "moscow",
     r'Москва:Дубки': "moscow:dubki",
-    r'Санкт Питербург': "piter",
+    r'Санкт-Петербург': "piter",
     r'Нижний Новгород': "novgorod",
     r'Пермь': "perm"
 }

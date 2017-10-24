@@ -7,7 +7,7 @@ from bot.models.tools import create_tables, drop_tables
 from bot.models.update_schedules import (api, fetch_schedule,
                                          format_day_schedule, format_lessons,
                                          format_schedule, get_and_save,
-                                         get_emails, update_schedules)
+                                         get_users, update_schedules)
 from bot.utils.schema import MESSAGE_SCHEMA, POST_SCHEMA
 from config import PG_CONN
 from peewee import PostgresqlDatabase
@@ -33,10 +33,10 @@ class TestUpdateDB:
         self.schema = RESPONSE_SCHEMA['schedule']
         self.emails = tuple(set(self.lecturers) | set(self.students))
 
-    def test_get_emails(self):
+    def test_get_users(self):
         with test_database(db_test, (Users, )):
             create_users()
-            emails = {email for email in get_emails()}
+            emails = {user_info[0] for user_info in get_users()}
             assert emails == set(self.emails)
 
     def test_fetch_schedule(self):
@@ -63,9 +63,10 @@ class TestUpdateDB:
     def test_get_and_save(self):
         with test_database(db_test, (Users, Lessons)):
             create_users()
-            get_and_save(self.students[0])
+            for u in Users:
+                get_and_save(user_info=(u.email, u.telegram_id, u.student))
             count_lessons = 0
             for lsesson in Lessons:
                 assert lsesson
                 count_lessons += 1
-            assert count_lessons == 1
+            assert count_lessons
