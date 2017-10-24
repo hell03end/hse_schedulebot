@@ -4,7 +4,8 @@ from threading import Thread
 from bot.logger import log
 from bot.models import Users
 from bot.models.update_schedules import get_and_save
-from bot.utils.functions import is_cancelled, typing
+from bot.schedule.commons import get_lessons
+from bot.utils.functions import is_cancelled, is_stopped, typing
 from bot.utils.keyboards import (CITIES_KEYBOARD, REGISTER_KEYBOARD,
                                  START_KEYBOARD)
 from bot.utils.messages import MESSAGES, TRIGGERS
@@ -24,8 +25,15 @@ MESSAGES = MESSAGES['service:common_handlers']
 @typing
 def ask_email(bot: Bot, update: Update) -> (int, str):
     chat_id = update.message.chat.id
-    if is_cancelled(update.message.text):
-        return send_cancel(bot, chat_id)
+    message = update.message.text
+    if is_cancelled(message):
+        send_cancel(bot, chat_id, user_data={
+            'reply_markup': ReplyKeyboardMarkup(REGISTER_KEYBOARD, True)
+        })
+        return ConversationHandler.END
+    elif is_stopped(message):
+        on_stop(bot, update)
+        return ConversationHandler.END
 
     bot.send_message(
         chat_id,
@@ -40,8 +48,15 @@ def ask_email(bot: Bot, update: Update) -> (int, str):
 @typing
 def ask_city(bot: Bot, update: Update) -> (int, str):
     chat_id = update.message.chat.id
-    if is_cancelled(update.message.text):
-        return send_cancel(bot, chat_id)
+    message = update.message.text
+    if is_cancelled(message):
+        send_cancel(bot, chat_id, user_data={
+            'reply_markup': ReplyKeyboardMarkup(REGISTER_KEYBOARD, True)
+        })
+        return ConversationHandler.END
+    elif is_stopped(message):
+        on_stop(bot, update)
+        return ConversationHandler.END
 
     bot.send_message(
         chat_id,
@@ -53,13 +68,18 @@ def ask_city(bot: Bot, update: Update) -> (int, str):
 
 
 @log
-def send_cancel(bot: Bot, uid: int) -> int:
+def send_cancel(bot: Bot, uid: int, user_data: dict=None) -> int:
+    if not user_data:
+        user_data = {}
     bot.send_message(
         uid,
         MESSAGES['cancel'],
         ParseMode.HTML,
-        reply_markup=ReplyKeyboardMarkup(START_KEYBOARD, True)
+        reply_markup=user_data.pop('reply_markup', None)
     )
+    if user_data:
+        for key, val in user_data.items():
+            del key, val
     return ConversationHandler.END
 
 
@@ -69,7 +89,13 @@ def get_email(bot: Bot, update: Update, user_data: dict) -> (int, str):
     chat_id = update.message.chat.id
     message = update.message.text
     if is_cancelled(message):
-        return send_cancel(bot, chat_id)
+        user_data['reply_markup'] = ReplyKeyboardMarkup(
+            REGISTER_KEYBOARD, True)
+        send_cancel(bot, chat_id, user_data)
+        return ConversationHandler.END
+    elif is_stopped(message):
+        on_stop(message),
+        return ConversationHandler.END
 
     if not Users.check_email(message):
         bot.send_message(
@@ -92,7 +118,13 @@ def get_city(bot: Bot, update: Update, user_data: dict,
     chat_id = update.message.chat.id
     message = update.message.text
     if is_cancelled(message):
-        return send_cancel(bot, chat_id)
+        user_data['reply_markup'] = ReplyKeyboardMarkup(
+            REGISTER_KEYBOARD, True)
+        send_cancel(bot, chat_id, user_data)
+        return ConversationHandler.END
+    elif is_stopped(message):
+        on_stop(message),
+        return ConversationHandler.END
 
     if message not in CITIES:
         bot.send_message(
@@ -114,13 +146,22 @@ def add_user(bot: Bot, update: Update, user_data: dict) -> (int, str):
     message = update.message.text
     username = update.message.from_user.username
     if is_cancelled(message):
-        return send_cancel(bot, uid)
+        user_data['reply_markup'] = ReplyKeyboardMarkup(
+            REGISTER_KEYBOARD, True)
+        send_cancel(bot, uid, user_data)
+        return ConversationHandler.END
+    elif is_stopped(message):
+        on_stop(message),
+        return ConversationHandler.END
 
     user = Users.create(telegram_id=uid, username=username)
     user.set_city(user_data['reg_city'])
     user.set_email(user_data['reg_email'])
     user.set_status(user_data['reg_email'])
     user.save()  # TODO: check email is valid
+
+    for key, val in user_data.items():
+        del key, val
 
     thread = Thread(
         name=f"get_and_save::{uid}, {user.email}",
@@ -153,6 +194,7 @@ def show_about(bot: Bot, update: Update) -> int:
 def start(bot: Bot, update: Update) -> None:
     uid = update.message.from_user.id
     username = update.message.from_user.username
+    message = update.message.text
     user = None
     try:
         user = Users.get(Users.telegram_id == uid)
@@ -165,7 +207,7 @@ def start(bot: Bot, update: Update) -> None:
             ParseMode.HTML,
             reply_markup=ReplyKeyboardMarkup(REGISTER_KEYBOARD, True)
         )
-        return
+        return ConversationHandler.END
     user.username = username
     user.save()
     bot.send_message(
@@ -173,6 +215,36 @@ def start(bot: Bot, update: Update) -> None:
         MESSAGES['start:greetings'],
         ParseMode.HTML,
         reply_markup=ReplyKeyboardMarkup(START_KEYBOARD, True)
+    )
+    return ConversationHandler.END
+
+
+@log
+@typing
+def on_stop(bot: Bot, update: Update) -> int:
+    uid = update.message.from_user.id
+    user = None
+    try:
+        user = Users.get(Users.telegram_id == uid)
+    except BaseException as excinfo:
+        logging.debug(excinfo)
+    if not user:
+        bot.send_message(
+            uid,
+            MESSAGES['on_stop:unregistered'],
+            ParseMode.HTML,
+            reply_markup=ReplyKeyboardMarkup(REGISTER_KEYBOARD, True)
+        )
+        return
+    lessons = get_lessons(uid)
+    if lessons:
+        lessons.delete_instance()
+    user.delete_instance()
+    bot.send_message(
+        uid,
+        MESSAGES['on_stop:complete'],
+        ParseMode.HTML,
+        reply_markup=ReplyKeyboardRemove()
     )
     return ConversationHandler.END
 
@@ -197,10 +269,12 @@ def register(dispatcher: Dispatcher) -> None:
                 )
             ],
         },
-        fallbacks=(CommandHandler('start', start),)
+        fallbacks=(CommandHandler('start', start),),
+        allow_reentry=True
     )
 
     dispatcher.add_handler(CommandHandler('start', start))
+    dispatcher.add_handler(CommandHandler('stop', on_stop))
     dispatcher.add_handler(registration)
     dispatcher.add_handler(RegexHandler(REGISTER_KEYBOARD[1][0], show_about))
     dispatcher.add_handler(RegexHandler(TRIGGERS['info'], show_about))
