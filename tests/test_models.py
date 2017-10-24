@@ -56,10 +56,10 @@ class TestUsers:
         assert user.city == "moscow"
         user.set_city("Пермь")
         assert user.city == "moscow"
-        user.set_city("Пермь", update=True)
+        user.set_city("Пермь", is_update=True)
         assert user.city == "perm"
         with pytest.raises(ValueError) as excinfo:
-            user.set_city("Paris", update=True)
+            user.set_city("Paris", is_update=True)
         assert excinfo
 
     def test_set_status(self):

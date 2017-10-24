@@ -53,7 +53,9 @@ class Users(BaseModel):
             return True
         raise ValueError(f"Wrong domain: {domain}")
 
-    def set_city(self, city: str) -> None:
+    def set_city(self, city: str, is_update: bool=False) -> None:
+        if self.city and not is_update:
+            return
         if city not in CITIES:
             raise ValueError("Where is no HSE in this city: {city}")
         self.city = CITIES[city]

@@ -168,7 +168,7 @@ def get_city(bot: Bot, update: Update) -> (int, str):
         )
     else:
         user = Users.get(Users.telegram_id == uid)
-        user.set_city(message, update=True)
+        user.set_city(message, is_update=True)
         user.save()
 
         bot.send_message(uid, MESSAGES['get_city:correct'], ParseMode.HTML)
