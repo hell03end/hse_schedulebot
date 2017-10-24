@@ -94,7 +94,7 @@ def run(token: str, logger_level: int=0, workers: int=10) -> None:
     )
 
     # load previous state to continue chats correctly
-    load_data(CONVERSATIONS_PATH, USERDATA_PATH)
+    # load_data(CONVERSATIONS_PATH, USERDATA_PATH)
 
     updater = Updater(token, workers=workers)
     api = Bot(token)  # api is used to resolve name conflicts with main module
