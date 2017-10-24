@@ -89,6 +89,7 @@ def run(token: str, logger_level: int=0, workers: int=10) -> None:
     import logging
 
     logging.basicConfig(
+        filemode='a',
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         level=logger_level
     )
