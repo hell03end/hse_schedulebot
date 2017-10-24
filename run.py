@@ -6,8 +6,8 @@ import bot
 from config import TOKENS
 
 LOGGING_LEVELS = {
-    'TEST': logging.INFO,
-    'PROD': logging.DEBUG
+    'TEST': logging.DEBUG,
+    'PROD': logging.INFO
 }
 
 
