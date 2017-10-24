@@ -83,9 +83,8 @@ MESSAGES = {
     'service:common_handlers': {
         'start:greetings':
             "Привет, как дела?",
-        'start:greetings_new': "Привет! У меня можно подсмотреть расписание "
-            "пар (в том числе, преподователям) "
-            "{}".format(emojize(':winking_face:')),
+        'start:greetings_new': f"Привет! У меня можно подсмотреть расписание "
+            f"пар (в том числе преподавателям) {emojize(':winking_face:')}",
         'ask_email:ask': "Введи твой корпоративный адрес электронной почты. "
                          "Да-да, тот который на hse.ru заканчивается",
         'ask_city:ask': "В вышке какого города учитесь/преподаете?",
@@ -93,16 +92,15 @@ MESSAGES = {
             "студентов, так и для преподавателей. В будущем, я научусь и "
             "другим полезным функциям.",
         'cancel': "Начнем с начала.",
-        'get_email:incorrect': "А ты точно их Вышки? А то email не подходит :( ",
+        'get_email:incorrect': "А ты точно их Вышки? А то email не подходит :(",
         'get_email:correct': "Почту запомнил!",
         'get_city:incorrect': "К сожалению, в этом городе еще нет НИУ ВШЭ, "
             "переезжаем в Москву... (можно изменить в настройках)",
         'get_city:msg': "Город запомнил.",
-        'add_user:msg': "Ну, будем дружить? " + emojize(':smiling_face:')
+        'add_user:msg': f"Ну, будем дружить? {emojize(':smiling_face:')}"
     },
     'schedule:week': {
-        'on_week:ask': "Выбери день недели {}".format(
-            emojize(':tear-off_calendar:')),
+        'on_week:ask': f"Выбери день недели {emojize(':tear-off_calendar:')}",
         'choose_dow:empty': "Нет пар",
         'choose_dow:back': "Вот предыдущее меню.",
         'choose_dow:ask': "Выбери вариант на клавиатуре",
