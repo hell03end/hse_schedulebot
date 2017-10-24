@@ -4,6 +4,7 @@ from threading import Thread
 from bot.logger import log
 from bot.models import Users
 from bot.models.update_schedules import get_and_save
+from bot.schedule.commons import get_lessons
 from bot.utils.functions import is_cancelled, is_stopped, typing
 from bot.utils.keyboards import (CITIES_KEYBOARD, REGISTER_KEYBOARD,
                                  START_KEYBOARD)
@@ -68,6 +69,8 @@ def ask_city(bot: Bot, update: Update) -> (int, str):
 
 @log
 def send_cancel(bot: Bot, uid: int, user_data: dict=None) -> int:
+    if not user_data:
+        user_data = {}
     bot.send_message(
         uid,
         MESSAGES['cancel'],
@@ -192,13 +195,6 @@ def start(bot: Bot, update: Update) -> None:
     uid = update.message.from_user.id
     username = update.message.from_user.username
     message = update.message.text
-    if is_cancelled(message):
-        send_cancel(bot, uid)
-        return ConversationHandler.END
-    elif is_stopped(message):
-        on_stop(message),
-        return ConversationHandler.END
-
     user = None
     try:
         user = Users.get(Users.telegram_id == uid)
@@ -240,6 +236,9 @@ def on_stop(bot: Bot, update: Update) -> int:
             reply_markup=ReplyKeyboardMarkup(REGISTER_KEYBOARD, True)
         )
         return
+    lessons = get_lessons(uid)
+    if lessons:
+        lessons.delete_instance()
     user.delete_instance()
     bot.send_message(
         uid,
