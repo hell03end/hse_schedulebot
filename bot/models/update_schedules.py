@@ -1,6 +1,7 @@
 from collections import Collection, Generator, Iterable
 from multiprocessing import Pool
 from datetime import datetime
+import time
 
 from ruz import RUZ
 
@@ -81,6 +82,7 @@ def update_schedules(schedules: Iterable, telegram_id: str) -> None:
     lessons = dict(zip(TABLE_MAPPING, schedule))
     Lessons.update(**lessons, upd_dt=datetime.now()).where(
         Lessons.id == lessons_obj.id).execute()
+    time.sleep(0.01)
 
 
 def get_and_save(user_info: Iterable) -> None:
