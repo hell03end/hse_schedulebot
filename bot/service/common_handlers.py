@@ -9,7 +9,7 @@ from bot.utils.keyboards import (CITIES_KEYBOARD, REGISTER_KEYBOARD,
                                  START_KEYBOARD)
 from bot.utils.messages import MESSAGES, TRIGGERS
 from bot.utils.schema import CITIES
-from bot.utils.states import ASK_CITY, ASK_EMAIL, INCORRECT_EMAIL
+from bot.utils.states import ASK_CITY, ASK_EMAIL
 from telegram import ParseMode, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.bot import Bot
 from telegram.ext import (CommandHandler, ConversationHandler, Filters,
@@ -77,7 +77,7 @@ def get_email(bot: Bot, update: Update, user_data: dict) -> (int, str):
             MESSAGES['get_email:incorrect'],
             ParseMode.HTML
         )
-        return INCORRECT_EMAIL
+        return
 
     user_data['reg_email'] = message
 
@@ -182,9 +182,6 @@ def register(dispatcher: Dispatcher) -> None:
         entry_points=[RegexHandler(REGISTER_KEYBOARD[0][0], ask_email)],
         states={
             ASK_EMAIL: [
-                MessageHandler(Filters.text, get_email, pass_user_data=True)
-            ],
-            INCORRECT_EMAIL: [
                 MessageHandler(Filters.text, get_email, pass_user_data=True)
             ],
             ASK_CITY: [
