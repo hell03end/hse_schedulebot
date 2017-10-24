@@ -34,7 +34,7 @@ def do_mailing(bot: Bot, recipients: object, msg: str, author: int) -> None:
     for recipient in recipients:
         data.add(
             (bot, (recipient.telegram_id, msg, ParseMode.HTML))
-          )
+        )
     result = pool.starmap(send_message_from_bot, data)
     sent_msgs = len([r for r in result if r is True])
 
@@ -120,6 +120,9 @@ def prepare_mailing(bot: Bot, update: Update, user_data: dict) -> (int, str):
         recipients = recipients.where(Users.is_student == 1)
     elif user_data['recipients'] == 'lecturers':
         recipients = recipients.where(Users.is_student == 0)
+
+    for key, val in user_data.items():
+        del key, val
 
     if recipients.exists():
         thread = Thread(

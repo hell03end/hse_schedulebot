@@ -122,6 +122,9 @@ def add_user(bot: Bot, update: Update, user_data: dict) -> (int, str):
     user.set_status(user_data['reg_email'])
     user.save()  # TODO: check email is valid
 
+    for key, val in user_data.items():
+        del key, val
+
     thread = Thread(
         name=f"get_and_save::{uid}, {user.email}",
         target=get_and_save,
