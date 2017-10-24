@@ -174,6 +174,7 @@ def start(bot: Bot, update: Update) -> None:
         ParseMode.HTML,
         reply_markup=ReplyKeyboardMarkup(START_KEYBOARD, True)
     )
+    return ConversationHandler.END
 
 
 def register(dispatcher: Dispatcher) -> None:
