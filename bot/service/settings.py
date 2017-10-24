@@ -3,15 +3,15 @@ from threading import Thread
 from bot.logger import log
 from bot.models import Users
 from bot.models.update_schedules import get_and_save
-from bot.service.common_handlers import send_cancel, start
-from bot.utils.functions import is_back, is_cancelled, typing
+from bot.service.common_handlers import on_stop, send_cancel, start
+from bot.utils.functions import is_back, is_cancelled, is_stopped, typing
 from bot.utils.keyboards import (BACK_KEY, CITIES_KEYBOARD_BACK,
                                  REGISTER_KEYBOARD, SETTINGS_KEYBOARD,
                                  START_KEYBOARD)
 from bot.utils.messages import MESSAGES
 from bot.utils.schema import CITIES
 from bot.utils.states import ASK_CITY, ASK_EMAIL, SETTINGS
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, ParseMode
+from telegram import ParseMode, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.bot import Bot
 from telegram.ext import (CommandHandler, ConversationHandler, Filters,
                           MessageHandler, RegexHandler)
@@ -46,9 +46,16 @@ def choose_menu(bot: Bot, update: Update) -> (int, str):
     chat_id = update.message.chat.id
     message = update.message.text
     if is_cancelled(message):
-        return send_cancel(bot, chat_id)
+        send_cancel(bot, chat_id, user_data={
+            'reply_markup': ReplyKeyboardMarkup(START_KEYBOARD, True)
+        })
+        return ConversationHandler.END
+    elif is_stopped(message):
+        on_stop(bot, update)
+        return ConversationHandler.END
     elif is_back(message):
-        return on_back(bot, update)
+        on_back(bot, update)
+        return ConversationHandler.END
 
     if message == SETTINGS_KEYBOARD[0][0]:
         return show_about(bot, update)
@@ -112,7 +119,13 @@ def get_email(bot: Bot, update: Update) -> (int, str):
     uid = update.message.from_user.id
     message = update.message.text
     if is_cancelled(message):
-        return send_cancel(bot, uid)
+        send_cancel(bot, uid, user_data={
+            'reply_markup': ReplyKeyboardMarkup(START_KEYBOARD, True)
+        })
+        return ConversationHandler.END
+    elif is_stopped(message):
+        on_stop(bot, update)
+        return ConversationHandler.END
     elif is_back(message):
         bot.send_message(
             uid,
@@ -136,7 +149,7 @@ def get_email(bot: Bot, update: Update) -> (int, str):
         thread = Thread(
             name=f"get_and_save::{uid}, {message}",
             target=get_and_save,
-            args=((user.email, user.student, uid), )
+            args=((user.email, user.is_student, uid), )
         )
         thread.start()
 
@@ -151,7 +164,13 @@ def get_city(bot: Bot, update: Update) -> (int, str):
     uid = update.message.from_user.id
     message = update.message.text
     if is_cancelled(message):
-        return send_cancel(bot, uid)
+        send_cancel(bot, uid, user_data={
+            'reply_markup': ReplyKeyboardMarkup(START_KEYBOARD, True)
+        })
+        return ConversationHandler.END
+    elif is_stopped(message):
+        on_stop(bot, update)
+        return ConversationHandler.END
     elif is_back(message):
         bot.send_message(
             uid,

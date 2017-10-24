@@ -65,8 +65,8 @@ def register(dispatcher: Dispatcher) -> None:
     from telegram.ext import MessageHandler, Filters
     from bot.service.common_handlers import start
 
-    service.register(dispatcher)
     schedule.register(dispatcher)
+    service.register(dispatcher)
     buses.register(dispatcher)
     trains.register(dispatcher)
     dispatcher.add_handler(MessageHandler(Filters.text, start))
@@ -94,7 +94,7 @@ def run(token: str, logger_level: int=0, workers: int=10) -> None:
     )
 
     # load previous state to continue chats correctly
-    load_data(CONVERSATIONS_PATH, USERDATA_PATH)
+    # load_data(CONVERSATIONS_PATH, USERDATA_PATH)
 
     updater = Updater(token, workers=workers)
     api = Bot(token)  # api is used to resolve name conflicts with main module

@@ -8,6 +8,7 @@ from bot.utils.messages import MESSAGES
 from bot.utils.schema import DAY_MAPPING
 from telegram import ParseMode
 from telegram.bot import Bot
+from telegram.ext import ConversationHandler
 from telegram.update import Update
 
 MESSAGES = MESSAGES['schedule:day']
@@ -21,7 +22,8 @@ def on_day(bot: Bot, update: Update, next_day: bool=False) -> (int, None):
     message = update.message.text
 
     if is_cancelled(message):
-        return send_cancel(bot, uid)
+        send_cancel(bot, uid)
+        return ConversationHandler.END
 
     lessons = get_lessons(uid)
     if not lessons:
