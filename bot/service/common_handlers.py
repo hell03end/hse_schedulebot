@@ -31,9 +31,6 @@ def ask_email(bot: Bot, update: Update) -> (int, str):
             'reply_markup': ReplyKeyboardMarkup(REGISTER_KEYBOARD, True)
         })
         return ConversationHandler.END
-    elif is_stopped(message):
-        on_stop(bot, update)
-        return ConversationHandler.END
 
     bot.send_message(
         chat_id,
@@ -269,12 +266,11 @@ def register(dispatcher: Dispatcher) -> None:
                 )
             ],
         },
-        fallbacks=(CommandHandler('start', start),),
-        allow_reentry=True
+        fallbacks=(CommandHandler('start', start),)
     )
 
-    dispatcher.add_handler(CommandHandler('start', start))
-    dispatcher.add_handler(CommandHandler('stop', on_stop))
     dispatcher.add_handler(registration)
     dispatcher.add_handler(RegexHandler(REGISTER_KEYBOARD[1][0], show_about))
     dispatcher.add_handler(RegexHandler(TRIGGERS['info'], show_about))
+    dispatcher.add_handler(CommandHandler('start', start))
+    dispatcher.add_handler(CommandHandler('stop', on_stop))

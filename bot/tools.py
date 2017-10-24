@@ -65,8 +65,8 @@ def register(dispatcher: Dispatcher) -> None:
     from telegram.ext import MessageHandler, Filters
     from bot.service.common_handlers import start
 
-    service.register(dispatcher)
     schedule.register(dispatcher)
+    service.register(dispatcher)
     buses.register(dispatcher)
     trains.register(dispatcher)
     dispatcher.add_handler(MessageHandler(Filters.text, start))
