@@ -207,7 +207,7 @@ def start(bot: Bot, update: Update) -> None:
             ParseMode.HTML,
             reply_markup=ReplyKeyboardMarkup(REGISTER_KEYBOARD, True)
         )
-        return
+        return ConversationHandler.END
     user.username = username
     user.save()
     bot.send_message(
