@@ -8,6 +8,7 @@ from bot.utils.schema import DAY_MAPPING
 from bot.utils.states import DAY_OF_WEEK, SCHEDULE
 from telegram import ParseMode, ReplyKeyboardMarkup
 from telegram.bot import Bot
+from telegram.ext import ConversationHandler
 from telegram.update import Update
 
 MESSAGES = MESSAGES['schedule:week']
@@ -34,7 +35,8 @@ def choose_dow(bot: Bot, update: Update) -> (int, str, None):
     message = update.message.text
 
     if is_cancelled(message):
-        return send_cancel(bot, uid)
+        send_cancel(bot, uid)
+        return ConversationHandler.END
     elif is_back(message):
         bot.send_message(
             chat_id,
