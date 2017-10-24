@@ -53,13 +53,16 @@ def ask_city(bot: Bot, update: Update) -> (int, str):
 
 
 @log
-def send_cancel(bot: Bot, uid: int) -> int:
+def send_cancel(bot: Bot, uid: int, user_data: dict=None) -> int:
     bot.send_message(
         uid,
         MESSAGES['cancel'],
         ParseMode.HTML,
         reply_markup=ReplyKeyboardMarkup(START_KEYBOARD, True)
     )
+    if user_data:
+        for key, val in user_data.items():
+            del key, val
     return ConversationHandler.END
 
 
@@ -203,7 +206,8 @@ def register(dispatcher: Dispatcher) -> None:
                 )
             ],
         },
-        fallbacks=(CommandHandler('start', start),)
+        fallbacks=(CommandHandler('start', start),),
+        allow_reentry=True
     )
 
     dispatcher.add_handler(CommandHandler('start', start))
