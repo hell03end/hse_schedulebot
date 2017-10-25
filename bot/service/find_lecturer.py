@@ -23,7 +23,7 @@ def find(asked_fio: str) -> list:
 @log
 @typing
 def get_lecturers(bot: Bot, update: Update) -> None:
-    lect_name = bot.sendMessage()
+    lect_name = update.message.text
     bot.send_message(
         update.message.from_user.id,
         'Список найденных преподавателей. Выбери нужного:',

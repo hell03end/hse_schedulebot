@@ -70,7 +70,7 @@ class Users(BaseModel):
             return True
         raise ValueError(f"Wrong domain: {domain}")
 
-    def set_city(self, city: str, is_update: bool = False) -> None:
+    def set_city(self, city: str, is_update: bool=False) -> None:
         if self.city and not is_update:
             return
         if city not in CITIES:
@@ -80,7 +80,7 @@ class Users(BaseModel):
     def set_status(self, email: str) -> None:
         self.is_student = Users.is_student_email(email)
 
-    def set_email(self, email: str, is_student: bool = True) -> None:
+    def set_email(self, email: str, is_student: bool=True) -> None:
         if '@' not in email:  # try to correct email address
             email += "@edu.hse.ru" if is_student else "@hse.ru"
         if not self.check_email(email):
@@ -89,7 +89,7 @@ class Users(BaseModel):
 
 
 class Lecturers(BaseModel):
-    lecturer_id = IntegerField(unique=True)
+    lecturer_id = CharField(unique=True)
     fio = CharField(index=True)  # index to faster search by this field
     chair = CharField()  # department in RUZ notation
     lessons = ForeignKeyField(
@@ -98,3 +98,4 @@ class Lecturers(BaseModel):
         null=True,
         on_delete='CASCADE'
     )
+    upd_dt = DateTimeField(default=dt.now())

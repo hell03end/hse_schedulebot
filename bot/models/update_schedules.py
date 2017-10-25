@@ -73,19 +73,17 @@ def format_schedule(schedule: Collection, **kwargs) -> list:
 def update_schedules(schedules: Iterable, uid: str) -> None:
     """ format and save (update) schedules to database """
     if not schedules:
-        # lessons_obj.delete_instance()
         return
     schedule = format_schedule(schedules)
     lessons = dict(zip(TABLE_MAPPING, schedule))
 
     if not Users.get(Users.telegram_id == uid).lessons:
         user = Users.get(Users.telegram_id == uid)
-        user.lessons = Lessons.create(**lessons, upd_dt=datetime.now(), is_relative=True)
+        user.lessons = Lessons.create(
+            **lessons, upd_dt=datetime.now(), is_relative=True)
     else:
         Lessons.update(**lessons, upd_dt=datetime.now()).where(
             Users.get(Users.telegram_id == uid).lessons.id == Lessons.id).execute()
-    # Lessons.update().where(
-    #     Lessons. == lessons_obj.lessons_id).execute()
     time.sleep(0.01)
 
 
