@@ -70,18 +70,22 @@ def format_schedule(schedule: Collection, **kwargs) -> list:
     return lessons
 
 
-def update_schedules(schedules: Iterable, telegram_id: str) -> None:
+def update_schedules(schedules: Iterable, uid: str) -> None:
     """ format and save (update) schedules to database """
-    student = Users.get(telegram_id=telegram_id)
-    lessons_obj, _ = Lessons.get_or_create(student=student)
     if not schedules:
-        lessons_obj.delete_instance()
+        # lessons_obj.delete_instance()
         return
     schedule = format_schedule(schedules)
-
     lessons = dict(zip(TABLE_MAPPING, schedule))
-    Lessons.update(**lessons, upd_dt=datetime.now()).where(
-        Lessons.id == lessons_obj.id).execute()
+
+    if not Users.get(Users.telegram_id == uid).lessons:
+        user = Users.get(Users.telegram_id == uid)
+        user.lessons = Lessons.create(**lessons, upd_dt=datetime.now(), is_relative=True)
+    else:
+        Lessons.update(**lessons, upd_dt=datetime.now()).where(
+            Users.get(Users.telegram_id == uid).lessons.id == Lessons.id).execute()
+    # Lessons.update().where(
+    #     Lessons. == lessons_obj.lessons_id).execute()
     time.sleep(0.01)
 
 
@@ -89,7 +93,7 @@ def get_and_save(user_info: Iterable) -> None:
     """ pipeline for getting and saving schedules """
     update_schedules(
         schedules=fetch_schedule(user_info[0], is_student=user_info[1]),
-        telegram_id=user_info[2]
+        uid=user_info[2]
     )
 
 
