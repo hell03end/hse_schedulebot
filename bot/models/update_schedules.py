@@ -78,9 +78,9 @@ def update_schedules(schedules: Iterable, uid: str) -> None:
     lessons = dict(zip(TABLE_MAPPING, schedule))
 
     if not Users.get(Users.telegram_id == uid).lessons:
-        user = Users.get(Users.telegram_id == uid)
-        user.lessons = Lessons.create(
+        lessons_obj = Lessons.create(
             **lessons, upd_dt=datetime.now(), is_relative=True)
+        Users.update(lessons=lessons_obj).where(Users.telegram_id == uid).execute()
     else:
         Lessons.update(**lessons, upd_dt=datetime.now()).where(
             Users.get(Users.telegram_id == uid).lessons.id == Lessons.id).execute()

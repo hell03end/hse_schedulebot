@@ -5,7 +5,8 @@ from bot.schedule.week import choose_dow, on_week
 from bot.service.common_handlers import on_stop, send_cancel, start
 from bot.utils.functions import is_cancelled, is_stopped, typing
 from bot.utils.keyboards import (BACK_KEY, REGISTER_KEYBOARD,
-                                 SCHEDULE_KEYBOARD, START_KEYBOARD)
+                                 SCHEDULE_KEYBOARD, SCHEDULE_KEYBOARD_STUDENT,
+                                 START_KEYBOARD)
 from bot.utils.messages import MESSAGES, TRIGGERS
 from bot.utils.states import ASK_EMAIL, DAY_OF_WEEK, SCHEDULE
 from telegram import ParseMode, ReplyKeyboardMarkup
@@ -22,8 +23,11 @@ MESSAGES = MESSAGES['schedule:start']
 @typing
 def on_schedule(bot: Bot, update: Update) -> str:
     uid = update.message.from_user.id
+    keyboard = SCHEDULE_KEYBOARD_STUDENT
     try:
         user = Users.get(Users.telegram_id == uid)
+        if not user.is_student:
+           keyboard = SCHEDULE_KEYBOARD
     except BaseException as excinfo:
         print(excinfo)
         bot.send_message(
@@ -33,12 +37,11 @@ def on_schedule(bot: Bot, update: Update) -> str:
             reply_markup=ReplyKeyboardMarkup(REGISTER_KEYBOARD, True)
         )
         return ASK_EMAIL
-
     bot.send_message(
         update.message.chat.id,
         MESSAGES['on_schedule:ask'],
         ParseMode.HTML,
-        reply_markup=ReplyKeyboardMarkup(SCHEDULE_KEYBOARD, True)
+        reply_markup=ReplyKeyboardMarkup(keyboard, True)
     )
     return SCHEDULE
 
@@ -48,6 +51,12 @@ def on_schedule(bot: Bot, update: Update) -> str:
 def on_spam(bot: Bot, update: Update) -> str:
     chat_id = update.message.chat.id
     message = update.message.text
+    uid = update.message.from_user.id
+    user = Users.get(Users.telegram_id == uid)
+    if user.is_student:
+        keyboard = SCHEDULE_KEYBOARD_STUDENT
+    else:
+        keyboard = SCHEDULE_KEYBOARD
     if is_cancelled(message):
         send_cancel(bot, chat_id, user_data={
             'reply_markup': ReplyKeyboardMarkup(START_KEYBOARD, True)
@@ -61,7 +70,7 @@ def on_spam(bot: Bot, update: Update) -> str:
         chat_id,
         MESSAGES['on_spam'](message),
         ParseMode.HTML,
-        reply_markup=ReplyKeyboardMarkup(SCHEDULE_KEYBOARD, True)
+        reply_markup=ReplyKeyboardMarkup(keyboard, True)
     )
     return SCHEDULE
 
