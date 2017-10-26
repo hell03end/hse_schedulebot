@@ -40,9 +40,13 @@ def save_lecturers(lecturer: dict) -> None:
         'chair': lecturer['chair'],
         'lecturer_id': lecturer['lecturerOid']
     }
-    lect_obj, _ = Lecturers.get_or_create(**lect_dict)
-    Lecturers.update(upd_dt=datetime.now(), **lect_dict).where(
-        Lecturers.lecturer_id == lect_obj.lecturer_id).execute()
+    lect_obj, is_created = Lecturers.get_or_create(**lect_dict)
+    if not is_created:
+        Lecturers.update(
+            upd_dt=datetime.now(), **lect_dict
+        ).where(
+            Lecturers.lecturer_id == lect_obj.lecturer_id
+        ).execute()
 
 
 def get_lecturers_from_api() -> dict:
