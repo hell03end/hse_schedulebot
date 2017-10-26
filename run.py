@@ -29,6 +29,8 @@ if __name__ == '__main__':
         bot.update_schedules.main()
     elif args.action == "init_db":
         bot.init_db()
+    elif args.action == "update_lecturers":
+        bot.update_lecturers.main()
     elif args.action == "run":
         bot.run(
             token=TOKENS.get(args.token.upper(), TOKENS["TEST"]),
