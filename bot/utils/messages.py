@@ -143,6 +143,10 @@ MESSAGES = {
         'on_back:msg': "Вот предыдущее меню",
         'choose_menu:back': "Вот предыдущее меню",
         'on_spam': on_spam
+    },
+    'lect_schedule:start': {
+        'find_lect:ask': 'Какого преподавателя найти?',
+        'ask_lect:ask': 'Вот что мне удалось найти. Выбери нужного:'
     }
 }
 
