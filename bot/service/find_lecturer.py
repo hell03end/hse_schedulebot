@@ -23,7 +23,7 @@ def find(asked_fio: str) -> list:
         query = Lecturers.select().\
             where(Lecturers.fio.contains(asked_fio.lower())).\
             order_by(Lecturers.fio)
-        return [{'fio': lect.fio} for lect in query]
+        return [[lect.fio] for lect in query]
     except Lecturers.DoesNotExist as err:
         print(err)
         return []
@@ -73,29 +73,16 @@ def get_lect_name(bot: Bot, update: Update) -> (int, str):
         return ASK_EMAIL
     
     lect_name = message
-
+    founded_lects = find(lect_name)
+    keyboard_with_lects = founded_lects
+    if len(founded_lects) == 0:
+        message = 'Такого преподавателя нет в ВШЭ('
+    else:
+        message = 'Список найденных преподавателей. Выбери нужного:'
+    keyboard_with_lects.append(['Назад'])
     bot.send_message(
         update.message.from_user.id,
-        'Список найденных преподавателей. Выбери нужного:',
-        reply_markup=ReplyKeyboardMarkup(find(lect_name).extend('Назад'), True)
+        message,
+        reply_markup=ReplyKeyboardMarkup(keyboard_with_lects, True)
     )
     return LECTURERS_SCHEDULE
-
-
-# @log
-# @typing
-# def get_lecturers(bot: Bot, update: Update) -> str:
-#     lect_name = update.message.text
-#     chat_id = update.message.chat.id
-
-#     if is_back(update.message.text):
-#         bot.send_message(
-#             chat_id,
-#             MESSAGES['choose_dow:back'],
-#             ParseMode.HTML,
-#             reply_markup=ReplyKeyboardMarkup(SCHEDULE_KEYBOARD_STUDENT, True)
-#         )
-#         return SCHEDULE
-    
-
-#     return LECTURERS_SCHEDULE
