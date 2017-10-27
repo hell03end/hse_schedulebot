@@ -1,3 +1,4 @@
+import logging
 import os
 
 
@@ -22,3 +23,5 @@ BOGDAN = 56631662
 ADMINS = (BOGDAN, DIMA)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+LOGGING_LEVEL = logging.INFO
