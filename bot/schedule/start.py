@@ -87,7 +87,7 @@ def register(dispatcher: Dispatcher) -> None:
                 RegexHandler(SCHEDULE_KEYBOARD[0][0], on_day),
                 RegexHandler(SCHEDULE_KEYBOARD[0][1], on_tomorrow),
                 RegexHandler(BACK_KEY[0], on_back),
-                RegexHandler(TRIGGERS['all'], on_spam)
+                # RegexHandler(TRIGGERS['all'], on_spam)
             ],
             DAY_OF_WEEK: [MessageHandler(Filters.text, choose_dow)]
         },
