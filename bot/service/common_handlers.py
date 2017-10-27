@@ -269,8 +269,9 @@ def register(dispatcher: Dispatcher) -> None:
         fallbacks=(CommandHandler('start', start),)
     )
 
+    dispatcher.add_handler(CommandHandler('about', show_about))
+    dispatcher.add_handler(CommandHandler('stop', on_stop))
+    dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(registration)
     dispatcher.add_handler(RegexHandler(REGISTER_KEYBOARD[1][0], show_about))
     dispatcher.add_handler(RegexHandler(TRIGGERS['info'], show_about))
-    dispatcher.add_handler(CommandHandler('start', start))
-    dispatcher.add_handler(CommandHandler('stop', on_stop))
