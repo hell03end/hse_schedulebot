@@ -18,15 +18,13 @@ from bot.utils.states import ASK_EMAIL, LECTURERS_SCHEDULE, SCHEDULE
 MESSAGES = MESSAGES['lect_schedule:start']
 
 
-def find(asked_fio: str) -> list:
-    try:
-        query = Lecturers.select().\
-            where(Lecturers.fio.contains(asked_fio.lower())).\
-            order_by(Lecturers.fio)
+def find_lecturer(asked_fio: str) -> list:
+    query = Lecturers.select().\
+        where(Lecturers.fio.contains(asked_fio.lower())).\
+        order_by(Lecturers.fio)
+    if query.exists():
         return [[lect.fio] for lect in query]
-    except Lecturers.DoesNotExist as err:
-        print(err)
-        return []
+    return []
 
 
 @log
@@ -60,6 +58,7 @@ def get_lect_name(bot: Bot, update: Update) -> (int, str):
         )
         return SCHEDULE
 
+    # TODO: this should be a decorator
     try:
         user = Users.get(Users.telegram_id == uid)
     except BaseException as excinfo:
@@ -73,12 +72,17 @@ def get_lect_name(bot: Bot, update: Update) -> (int, str):
         return ASK_EMAIL
     
     lect_name = message
-    founded_lects = find(lect_name)
+    founded_lects = find_lecturer(lect_name)
+    if len(founded_lects) > 20:
+        # писать, что ты ахуел мальчик, сужай запрос
+
+        return
     keyboard_with_lects = founded_lects
-    if len(founded_lects) == 0:
+    if not founded_lects:
         message = 'Такого преподавателя нет в ВШЭ('
     else:
         message = 'Список найденных преподавателей. Выбери нужного:'
+
     keyboard_with_lects.append(['Назад'])
     bot.send_message(
         update.message.from_user.id,
