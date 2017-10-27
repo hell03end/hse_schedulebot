@@ -3,6 +3,12 @@ import pickle
 
 from telegram.ext import ConversationHandler, Dispatcher
 from telegram.ext.dispatcher import Dispatcher
+from config import LOGGING_LEVEL
+
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=LOGGING_LEVEL
+)
 
 
 def load_data(conv_path: str, user_data_path: str) -> None:
