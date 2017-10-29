@@ -12,4 +12,4 @@ def drop_tables(tables: Collection) -> None:
     for table in reversed(tables):
         if table.table_exists():
             print("drop table: {}".format(table))
-            table.drop_table()
+            table.drop_table(cascade=True)
