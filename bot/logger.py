@@ -15,5 +15,5 @@ def log(func: Callable) -> Callable:
         result = func(*args, **kwargs)
         logger.info("Exiting: {}".format(func.__name__))
         return result
-
+    decorator.__doc__ = func.__doc__
     return decorator
