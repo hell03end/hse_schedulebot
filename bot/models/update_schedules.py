@@ -10,7 +10,7 @@ from bot.utils.schema import (DAYS, LESSONS_TIMETABLE, MESSAGE_SCHEMA,
                               POST_SCHEMA, TABLE_MAPPING)
 
 MESSAGES = MESSAGES['models:update_schedules']
-api = RUZ()
+api = RUZ(strict_v1=True)
 
 
 def get_users() -> Generator:
@@ -64,7 +64,7 @@ def format_day_schedule(lessons: Iterable, schema: dict=POST_SCHEMA,
 def format_schedule(schedule: Collection, **kwargs) -> list:
     """ apply schema for all days with lessons in schedule """
     days = [[] for _ in range(7)]
-    for lesson in schedule['Lessons']:
+    for lesson in schedule:
         days[lesson['dayOfWeek'] - 1].append(lesson)
     lessons = [[] for _ in range(7)]
     for idx, day in enumerate(days):
