@@ -135,7 +135,7 @@ MESSAGES = {
         'on_back:msg': "Вот предыдущее меню"
     },
     'models:update_schedules': {
-        'format_lesson:time': "{} пара",
+        'format_lesson:lesson_num': "{} пара",
         'format_schedule:empty': "Нет пар"
     },
     'schedule:start': {

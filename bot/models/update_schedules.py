@@ -1,5 +1,4 @@
 from collections import Collection, Generator, Iterable
-from multiprocessing import Pool
 from datetime import datetime
 import time
 
@@ -16,7 +15,8 @@ api = RUZ()
 
 def get_users() -> Generator:
     """ return email, (is)student, telegram_id from Users database """
-    return map(lambda u: (u.email, u.is_student, u.telegram_id), Users)
+    for u in Users.select().iterator():
+        yield u.email, u.is_student, u.telegram_id
 
 
 def fetch_schedule(email: str, api: object=api, is_student: bool=True) -> list:
@@ -26,17 +26,22 @@ def fetch_schedule(email: str, api: object=api, is_student: bool=True) -> list:
     return api.schedule(email, receiverType=1)
 
 
-def format_lessons(lessons: Collection, schema: dict=MESSAGE_SCHEMA,
+def format_lessons(lessons: Collection, schema: str=MESSAGE_SCHEMA,
                    city: str="moscow", **kwargs) -> Generator:
     """ apply correct message schema to lesson """
     for lesson in lessons:
-        lesson_time = LESSONS_TIMETABLE[city].get(lesson.get('beginLesson'))
-        time_message = MESSAGES['format_lesson:time'].format(lesson_time)
-        if not lesson_time:
-            time_message = f"{lesson.get('beginLesson')} - " \
-                           f"{lesson.get('endLesson')}"
+        lesson_num = LESSONS_TIMETABLE[city].get(lesson.get('beginLesson'))
+        lesson_num_msg = ''
+        if lesson_num:
+            # 1 пара
+            lesson_num_msg = MESSAGES['format_lesson:lesson_num'].format(lesson_num)
+        lesson_dt_str = (
+            f"{lesson.get('beginLesson')} - {lesson.get('endLesson')}"
+        )
+
         yield schema.format(
-            time=time_message,
+            lesson_num_msg=lesson_num_msg,
+            time=lesson_dt_str,
             name=lesson.get('discipline', "Undefined"),
             type=lesson.get('kindOfWork', "Undefined"),
             teacher=lesson.get('lecturer', "Professor"),
@@ -59,7 +64,7 @@ def format_day_schedule(lessons: Iterable, schema: dict=POST_SCHEMA,
 def format_schedule(schedule: Collection, **kwargs) -> list:
     """ apply schema for all days with lessons in schedule """
     days = [[] for _ in range(7)]
-    for lesson in schedule:
+    for lesson in schedule['Lessons']:
         days[lesson['dayOfWeek'] - 1].append(lesson)
     lessons = [[] for _ in range(7)]
     for idx, day in enumerate(days):
@@ -94,5 +99,5 @@ def get_and_save(user_info: Iterable) -> None:
 
 
 def main() -> None:
-    pool = Pool(2)
-    pool.map(get_and_save, get_users(), chunksize=100)
+    for u in get_users():
+        get_and_save(u)
