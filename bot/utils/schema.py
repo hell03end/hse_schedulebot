@@ -11,7 +11,7 @@ TABLE_MAPPING = (
 )
 
 MESSAGE_SCHEMA = \
-    "{lesson_num_msg}\n{time}<b>{name}</b>\n<i>{type}</i>\n{teacher}\n{room}, " \
+    "{lesson_num_msg}\n{time}\n<b>{name}</b>\n<i>{type}</i>\n{teacher}\n{room}, " \
     "<code>{place}</code>"
 
 POST_SCHEMA = "<b>{date}</b>\n~~~~~~~~~~~~~~~~~~~~\n{messages}"
