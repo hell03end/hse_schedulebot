@@ -25,7 +25,6 @@ CITIES_KEYBOARD_BACK.append(BACK_KEY)
 SETTINGS_KEYBOARD = [
     ['О боте'],
     ['Email', 'Город'],
-    # ['Добавить Электрички'],
     ['Написать разработчикам']
 ]
 SETTINGS_KEYBOARD.append(BACK_KEY)

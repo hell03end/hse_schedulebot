@@ -1,9 +1,15 @@
 """ Collection of conversation states, used in bot """
 
-DAY_OF_WEEK = 'DAY_OF_WEEK'
-WHOM_TO_SEND = 'WHO_TO_SEND'
-PREPARE_MAILING = 'PREPARE_MAILING'
-ASK_EMAIL = 'ASK_EMAIL'
-ASK_CITY = 'ASK_CITY'
-SCHEDULE = 'SCHEDULE'
-SETTINGS = 'SETTINGS'
+DAY_OF_WEEK = 1
+WHOM_TO_SEND = 2
+PREPARE_MAILING = 3
+ASK_EMAIL = 4
+ASK_CITY = 5
+SCHEDULE = 6
+SETTINGS = 7
+
+# regexpr triggers
+TRIGGERS = {
+    'info': r"(инфо|о боте|функции)",
+    'all': r".*"
+}

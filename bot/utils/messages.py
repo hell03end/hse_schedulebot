@@ -1,79 +1,13 @@
 """ Collection of bot messages """
 
-import re
-from random import randint
-
 from emoji import emojize
-
-
-def on_spam_day(message: str=None) -> str:
-    sunday_m = ("Никто не учится по воскресеньям.",
-                "Когда-то же нужно отдыхать.",
-                "Предлогаю перерыв?",
-                "'Сделай паузу, скушай твикс!'")
-    weekday_m = ("В моем календаре нет такого дня.",
-                 "День китайской пасхи?",
-                 "...",
-                 "Ой.")
-
-    if message and re.match(r".*воскр.*", message.lower()):
-        return sunday_m[randint(0, len(sunday_m) - 1)]
-    return weekday_m[randint(0, len(weekday_m) - 1)]
-
-
-def on_spam_mailing(message: str=None) -> str:
-    how_are_m = ("Все нормально.",
-                 "Привет.",
-                 "Могло быть и лучше.",
-                 "Могло быть и хуже.",
-                 "А Вам как кажется?",
-                 "Вы как?",
-                 ":)")
-    spam_m = ("Вроде бы админ, а ведешь себя как ребенок...",
-              "...",
-              "Не знаю, что и сказать.",
-              "WubbaLubbaDubDub!",
-              "Все нормально?")
-
-    if message and re.match(r".*(как.?дела|как ты).*", message.lower()):
-        return how_are_m[randint(0, len(how_are_m) - 1)]
-    return spam_m[randint(0, len(spam_m) - 1)]
-
-
-def on_spam(message: str=None) -> str:
-    how_are_m = ("Все нормально.",
-                 "Привет.",
-                 "Могло быть и лучше.",
-                 "Могло быть и хуже.",
-                 "А Вам как кажется?",
-                 "Вы как?",
-                 ":)")
-    abuse_m = (":(",
-               "Обидно.",
-               "...",
-               "Бывает",
-               "Ой.")
-    spam_m = ("Извините, я Вас не понял.",
-              "Этого я не умею :(",
-              "...",
-              "Не знаю, что и сказать.",
-              "Все нормально?",
-              "Бывает",
-              "Ой.")
-
-    if message and re.match(r".*(как.?дела|как ты).*", message.lower()):
-        return how_are_m[randint(0, len(how_are_m) - 1)]
-    elif message and re.match(r".*(питух|дура.*|туп.*|глуп.*)",
-                              message.lower()):
-        return abuse_m[randint(0, len(abuse_m) - 1)]
-    return spam_m[randint(0, len(spam_m) - 1)]
 
 
 MESSAGES = {
     'service:mailing': {
         'do_mailing:end': "Разослал. Сообщение получили {}.",
         'whom_to_send:ask': "Кому будем рассылать?",
-        'whom_to_send:spam': on_spam_mailing,
+        'whom_to_send:spam': "...",
         'recipients:ask': "Напиши, что будем отправлять.",
         'recipients:back': "Вот предыдущее меню.",
         'prepare_mailing:start': "Начал рассылку. "
@@ -111,12 +45,12 @@ MESSAGES = {
         'choose_dow:back': "Вот предыдущее меню.",
         'choose_dow:ask': "Выбери вариант на клавиатуре",
         'choose_dow:cancel': "Начнем с начала",
-        'choose_dow:spam': on_spam_day
+        'choose_dow:spam': "День недели не найден"
     },
     'service:settings': {
         'on_settings:unregistered': "Сначала надо зарегистрироваться!",
         'current': "Текущие настройки:\nEmail: {}\nГород: {}",
-        'choose_menu:spam': on_spam,
+        'choose_menu:spam': "Извините, я вас не понял :(",
         'choose_menu:feedback': "Свой отзыв/предложение/вопрос пиши в: "
             "https://t.me/joinchat/A2Ahbgvbg3mq2b_WnDvWVw",
         'on_back:msg': "Вот предыдущее меню",
@@ -147,12 +81,6 @@ MESSAGES = {
         'on_schedule:ask': "На какой день показывать?",
         'on_back:msg': "Вот предыдущее меню",
         'choose_menu:back': "Вот предыдущее меню",
-        'on_spam': on_spam
+        'on_spam': "Ой."
     }
-}
-
-# regexpr triggers
-TRIGGERS = {
-    'info': r"(инфо|о боте|функции)",
-    'all': r".*"
 }

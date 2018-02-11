@@ -1,14 +1,16 @@
-from collections import Callable
+import logging
 from functools import wraps
+from typing import Callable
 
 import telegram
-from bot.service.common_handlers import on_stop, send_cancel
-from bot.utils.keyboards import BACK_KEY
-from bot.utils.messages import MESSAGES
 from telegram import ParseMode
 from telegram.bot import Bot
 from telegram.ext import ConversationHandler
 from telegram.update import Update
+
+from bot.service.common_handlers import on_stop, send_cancel
+from bot.utils.keyboards import BACK_KEY
+from bot.utils.messages import MESSAGES
 
 MESSAGES = MESSAGES['utils:functions']
 
@@ -25,7 +27,7 @@ def is_stopped(msg: str) -> bool:
 
 def is_back(msg: str) -> bool:
     """ Check message is 'go back' action """
-    return msg == BACK_KEY[0]
+    return msg == BACK_KEY[0] or msg.strip('/').lower() in ('back')
 
 
 def typing(func: Callable) -> Callable:
@@ -37,7 +39,6 @@ def typing(func: Callable) -> Callable:
             action=telegram.ChatAction.TYPING
         )
         return func(bot, update, *args, **kwargs)
-    decorator.__doc__ = func.__doc__
     return decorator
 
 
@@ -51,9 +52,9 @@ def check_canceled(func: Callable) -> Callable:
                 update.message.chat.id,
                 user_data=kwargs.get('user_data')
             )
+            logging.debug("Chat %d was canceled.", update.message.chat.id)
             return ConversationHandler.END
         return func(bot, update, *args, **kwargs)
-    decorator.__doc__ = func.__doc__
     return decorator
 
 
@@ -62,10 +63,10 @@ def check_stopped(func: Callable) -> Callable:
     @wraps(func)
     def decorator(bot: Bot, update: Update, *args, **kwargs) -> object:
         if is_stopped(update.message.text):
+            logging.debug("Chat %d was stopped.", update.message.chat.id)
             on_stop(bot, update)
             return ConversationHandler.END
         return func(bot, update, *args, **kwargs)
-    decorator.__doc__ = func.__doc__
     return decorator
 
 
@@ -83,5 +84,4 @@ def check_back(func: Callable) -> Callable:
             )
             return user_data['previous_state']
         return func(bot, update, *args, **kwargs)
-    decorator.__doc__ = func.__doc__
     return decorator

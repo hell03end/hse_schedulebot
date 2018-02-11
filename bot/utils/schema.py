@@ -10,9 +10,11 @@ TABLE_MAPPING = (
     'sunday'
 )
 
-MESSAGE_SCHEMA = \
-    "{time}\n<b>{name}</b>\n<i>{type}</i>\n{teacher}\n{room}, " \
-    "<code>{place}</code>"
+MESSAGE_SCHEMA = """{time}
+<b>{name}</b>
+<i>{type}</i>
+{teacher}
+{room}, <code>{place}</code>"""
 
 POST_SCHEMA = "<b>{date}</b>\n~~~~~~~~~~~~~~~~~~~~\n{messages}"
 
