@@ -1,15 +1,19 @@
-from collections import Collection
+import logging
 
 
-def create_tables(tables: Collection) -> None:
+def create_tables(*tables) -> None:
     for table in tables:
         if not table.table_exists():
-            print("create table: {}".format(table))
+            logging.info("Create table: '%s'.", table)
             table.create_table()
+        else:
+            logging.info("Table '%s' already exists.", table)
 
 
-def drop_tables(tables: Collection) -> None:
+def drop_tables(*tables) -> None:
     for table in reversed(tables):
         if table.table_exists():
-            print("drop table: {}".format(table))
+            logging.info("Drop table: '%s'.", table)
             table.drop_table(cascade=True)
+        else:
+            logging.info("Table '%s' doesn't exist.", table)

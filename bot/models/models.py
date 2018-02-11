@@ -1,14 +1,14 @@
-import re
-from datetime import datetime as dt
+import logging
+from datetime import datetime
 
-from ruz.utils import EMAIL_DOMAINS, EMAIL_PATTERN
-
-from bot.utils.schema import CITIES
-from config import PG_CONN
+import ruz
 from peewee import (BooleanField, CharField, DateTimeField, ForeignKeyField,
                     IntegerField, Model, PrimaryKeyField, TextField)
 from playhouse.pool import PostgresqlDatabase
 from playhouse.shortcuts import RetryOperationalError
+
+from bot.utils.schema import CITIES
+from config import PG_CONN
 
 
 class MyRetryDB(RetryOperationalError, PostgresqlDatabase):
@@ -33,14 +33,15 @@ class Lessons(BaseModel):
     friday = TextField(null=True)
     saturday = TextField(null=True)
     sunday = TextField(null=True)
-    upd_dt = DateTimeField(default=dt.now())
+    # to store lessons for 2 weeks
+    is_next_week = BooleanField(null=True, default=False)
+    upd_dt = DateTimeField(default=datetime.now())
 
 
 class Users(BaseModel):
     telegram_id = IntegerField(unique=1)
-    username = CharField(null=True)
+    username = CharField(null=True)  # why if it isn't used anywhere?
     email = CharField(null=True)
-    is_student = BooleanField(null=True, default=True)
     city = CharField(null=True)
     show_trains = BooleanField(null=True, default=False)
     lessons = ForeignKeyField(
@@ -49,43 +50,23 @@ class Users(BaseModel):
         null=True,
         on_delete='CASCADE'
     )
-    dt = DateTimeField(default=dt.now())
+    dt = DateTimeField(default=datetime.now())
 
-    @staticmethod
-    def check_email(email: str) -> bool:
-        if not re.match(EMAIL_PATTERN, email):
+    def set_city(self, city: str, is_update: bool = False) -> bool:
+        if self.city and not is_update:
             return False
-        domain = email.split('@')[-1]
-        if domain not in EMAIL_DOMAINS:
+        elif city not in CITIES:
+            logging.warning("Wrong city: '%s'", city)
             return False
+        self.city = CITIES[city]
         return True
 
-    @staticmethod
-    def is_student_email(email: str) -> bool:
-        """ check whether email belongs to student or lecturer """
-        domain = email.lower().split('@')[-1]  # email should be correct
-        if domain == "hse.ru":
+    def set_email(self, email: str) -> bool:
+        if not ruz.is_valid_hse_email(email):
+            logging.warning("Incorrect email: '%s'", email)
             return False
-        elif domain == "edu.hse.ru":
-            return True
-        raise ValueError(f"Wrong domain: {domain}")
-
-    def set_city(self, city: str, is_update: bool = False) -> None:
-        if self.city and not is_update:
-            return
-        if city not in CITIES:
-            raise ValueError("Where is no HSE in this city: {city}")
-        self.city = CITIES[city]
-
-    def set_status(self, email: str) -> None:
-        self.is_student = Users.is_student_email(email)
-
-    def set_email(self, email: str, is_student: bool = True) -> None:
-        if '@' not in email:  # try to correct email address
-            email += "@edu.hse.ru" if is_student else "@hse.ru"
-        if not self.check_email(email):
-            raise ValueError("Incorrect email: {email}")
         self.email = email.lower()
+        return True
 
 
 class Lecturers(BaseModel):
