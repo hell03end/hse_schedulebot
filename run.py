@@ -1,14 +1,8 @@
 import logging
-import sys
 from argparse import ArgumentParser, Namespace
 
 import bot
 from config import TOKENS
-
-LOGGING_LEVELS = {
-    'TEST': logging.DEBUG,
-    'PROD': logging.INFO
-}
 
 
 def parse_argv() -> Namespace:
@@ -25,15 +19,13 @@ def parse_argv() -> Namespace:
 
 if __name__ == '__main__':
     args = parse_argv()
-    if args.action == "update_schedules":
+    action = args.action.lower()
+    if action == "update_schedules":
         bot.update_schedules.main()
-    elif args.action == "init_db":
+    elif action == "init_db":
         bot.init_db()
-    elif args.action == "run":
-        bot.run(
-            token=TOKENS.get(args.token.upper(), TOKENS["TEST"]),
-            logger_level=LOGGING_LEVELS.get(args.token.upper(), logging.DEBUG),
-            workers=args.workers
-        )
+    elif action == "run":
+        bot.run(token=TOKENS.get(args.token.upper(), TOKENS["TEST"]),
+                workers=args.workers)
     else:
-        print(f"Wrong command: {args.action}", file=sys.stderr)
+        logging.error("Wrong command '%s'", args.action)
