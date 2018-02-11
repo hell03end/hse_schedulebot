@@ -1,27 +1,38 @@
+""" Sample of configuration file """
+
 import logging
 import os
 
 
-USERDATA_PATH = r"backup/userdata"
-CONVERSATIONS_PATH = r"backup/conversations"
+# ===== Logging =====
+LOGGING_LEVEL = logging.DEBUG
+logging.basicConfig(
+    level=LOGGING_LEVEL,
+    format="[%(asctime)s] %(levelname)s "
+           "[%(name)s.{%(filename)s}.%(funcName)s:%(lineno)d] %(message)s",
+    datefmt="%H:%M:%S"
+)
 
+# ===== PSQL =====
 PG_CONN = {
-    'host': 'localhost',
-    'port': 5432,
-    'user': os.environ.get("POSTGRES_USER"),
-    'password': os.environ.get("POSTGRES_PASSWORD"),
+    'host': "localhost",
+    'port': 5433,
+    'user': os.environ.get("PSQL_USER", "postgres"),
+    'password': os.environ.get("PSQL_PASS"),
     'autorollback': True
 }
 
+# ===== Telegram =====
 TOKENS = {
-    'TEST': os.environ.get("API_KEY_TELEGRAM_SCHEDULE_BOT")
+    'TEST': os.environ.get("TEST_BOT_TOKEN"),
+    'PROD': os.environ.get("PROD_BOT_TOKEN")
 }
+ADMINS = (42928638, 56631662)  # hell03end, evstratbg
 
-DIMA = 42928638
-BOGDAN = 56631662
-
-ADMINS = (BOGDAN, DIMA)
-
+# ===== Paths =====
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+USERDATA_PATH = os.path.join(BASE_DIR, "backup", "userdata")
+CONVERSATIONS_PATH = os.path.join(BASE_DIR, "backup", "conversations")
 
-LOGGING_LEVEL = logging.INFO
+# ===== Other =====
+WORKERS_COUNT = 10
