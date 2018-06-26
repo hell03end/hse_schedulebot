@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import NoReturn
+from typing import Any, NoReturn
 
 import ruz
 from peewee import (AutoField, CharField, DateTimeField, ForeignKeyField,
@@ -14,7 +14,7 @@ class BaseModel(Model):
     """ Base model with common `id` field """
     id = AutoField()
 
-    def refresh(self) -> object:
+    def refresh(self) -> Any:
         return type(self).get(self._pk_expr())
 
     class Meta:
@@ -76,6 +76,6 @@ class Lecturers(BaseModel):
     )
 
     @staticmethod
-    def find_lecturer(query: str) -> object:
+    def find_lecturer(query: str) -> NoReturn:
         # [feature] TODO: flexible search of lecturer by part of name
         raise NotImplementedError("Method is not implemented!")

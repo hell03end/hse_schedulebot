@@ -1,3 +1,4 @@
+import sys
 from argparse import ArgumentParser, Namespace
 from multiprocessing import Pool
 from typing import NoReturn
@@ -54,3 +55,5 @@ if __name__ == "__main__":
                 map(lambda u: u, Users),
                 chunksize=100
             )
+    else:
+        print(f"Wrong command:\t{args.action}", file=sys.stderr)
