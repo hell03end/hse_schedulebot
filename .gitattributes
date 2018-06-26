@@ -1,0 +1,16 @@
+# Source files
+# ============
+*.sh		text eol=lf
+*.py 		text eol=lf
+
+*.json		text
+*.md		text
+*.txt		text
+
+# Binary files
+# ============
+*.jpg		binary
+*.png		binary
+*.gif		binary
+*.zip		binary
+*.gz		binary

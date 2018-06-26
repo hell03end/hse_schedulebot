@@ -1,19 +1,18 @@
+.pytest_cache/
 __pycache__/
 .vscode/
 .cache/
 .idea/
-build/
-dist/
-wiki/
-logs/
-.venv
-venv/
-.env
-env/
-tmp/
+.venv/
+log*/
 
+*.env
 *.log
 *.py[cod]
 *.bat
+*.log
+*.bak
+*.db
 
 config.py
+*tmp*
