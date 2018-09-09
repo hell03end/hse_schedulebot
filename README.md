@@ -2,8 +2,6 @@ HSE Schedule Bot
 ================
 
 [![Telegram Group](https://img.shields.io/badge/Telegram-Group-blue.svg)](https://t.me/joinchat/A2Ahbgvbg3mq2b_WnDvWVw "Telegram support group")
-<!-- [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/evstratbg/hse_schedulebot.svg)](http://isitmaintained.com/project/evstratbg/hse_schedulebot "Average time to resolve an issue") -->
-<!-- [![Percentage of issues still open](http://isitmaintained.com/badge/open/evstratbg/hse_schedulebot.svg)](http://isitmaintained.com/project/evstratbg/hse_schedulebot "Percentage of issues still open") -->
 
 Telegram bot to view the schedule of students/lecturers of the Scientific Research University [Higher School of Economics](https://www.hse.ru/). It uses [RUZ API](https://pypi.org/project/hse-ruz/).
 

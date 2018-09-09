@@ -1,5 +1,13 @@
 from multiprocessing import Pool
 from threading import Thread
+from typing import Any
+
+from telegram import ParseMode, ReplyKeyboardMarkup
+from telegram.bot import Bot
+from telegram.ext import (CommandHandler, ConversationHandler, Filters,
+                          MessageHandler, RegexHandler)
+from telegram.ext.dispatcher import Dispatcher
+from telegram.update import Update
 
 from bot.logger import log
 from bot.models import Users
@@ -9,12 +17,6 @@ from bot.utils.keyboards import BACK_KEY, MAILING_WHOM_KEYBOARD
 from bot.utils.messages import MESSAGES
 from bot.utils.states import PREPARE_MAILING, WHOM_TO_SEND
 from config import ADMINS
-from telegram import ParseMode, ReplyKeyboardMarkup
-from telegram.bot import Bot
-from telegram.ext import (CommandHandler, ConversationHandler, Filters,
-                          MessageHandler, RegexHandler)
-from telegram.ext.dispatcher import Dispatcher
-from telegram.update import Update
 
 MESSAGES = MESSAGES['service:mailing']
 
@@ -28,7 +30,7 @@ def send_message_from_bot(bot, send_params):
 
 
 @log
-def do_mailing(bot: Bot, recipients: object, msg: str, author: int) -> None:
+def do_mailing(bot: Bot, recipients: Any, msg: str, author: int) -> None:
     pool = Pool(10)
     data = set()
     for recipient in recipients:

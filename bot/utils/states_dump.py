@@ -1,21 +1,16 @@
+# [feature] TODO: finish saving/loading dialogs sates
+
 import logging
 import pickle
+import time
 from threading import Thread
-from time import sleep
+from typing import NoReturn
 
 from telegram import Bot
-from telegram.ext import (ConversationHandler, Dispatcher, Filters,
-                          MessageHandler, Updater)
-from telegram.ext.dispatcher import Dispatcher
-
-from bot import schedule, service
-from bot.models.models import Lecturers, Lessons, Users
-from bot.models.tools import create_tables, drop_tables
-from bot.service.common_handlers import start
-from config import CONVERSATIONS_PATH, USERDATA_PATH
+from telegram.ext import ConversationHandler, Dispatcher
 
 
-def load_data(conv_path: str, user_data_path: str) -> None:
+def load_data(conv_path: str, user_data_path: str) -> NoReturn:
     try:
         with open(conv_path, 'rb') as reader:
             ConversationHandler.conversations = pickle.load(reader)
@@ -29,10 +24,10 @@ def load_data(conv_path: str, user_data_path: str) -> None:
 
 def save_data(period: float or int,
               conv_path: str,
-              user_data_path: str) -> None:
+              user_data_path: str) -> NoReturn:
     """ Infinite loop for with saving bot state """
     while True:
-        sleep(period)
+        time.sleep(period)
         # Before pickling
         resolved = {}
         for k, v in ConversationHandler.conversations.items():
@@ -41,7 +36,8 @@ def save_data(period: float or int,
                     # Result of async function
                     new_state = v[1].result()
                 except:
-                    # In case async function raised an error, fallback to old state
+                    # In case async function raised an error,
+                    # fall back to old state
                     new_state = v[0]
                 resolved[k] = new_state
             else:
@@ -55,7 +51,7 @@ def save_data(period: float or int,
             logging.error(excinfo)
 
 
-def save_state(period: float or int=60, **kwargs) -> None:
+def save_state(period: float or int=60, **kwargs) -> NoReturn:
     """ Start infinite state saving in separate thread """
     thread = Thread(
         name="save_data",
@@ -64,29 +60,3 @@ def save_state(period: float or int=60, **kwargs) -> None:
         target=save_data
     )
     thread.start()
-
-
-def register(dispatcher: Dispatcher) -> None:
-    """ Register all handlers with bot dispatcher """
-    service.register(dispatcher)
-    schedule.register(dispatcher)
-    dispatcher.add_handler(MessageHandler(Filters.text, start))
-
-
-def init_db() -> None:
-    """ (re)Create tables in database """
-    drop_tables(Users, Lecturers, Lessons)
-    create_tables(Users, Lecturers, Lessons)
-
-
-def run(token: str, workers: int=10) -> None:
-    """ Start bot """
-    # load previous state to continue chats correctly
-    # load_data(CONVERSATIONS_PATH, USERDATA_PATH)
-
-    updater = Updater(token, workers=workers)
-    bot_api = Bot(token)
-    register(updater.dispatcher)
-
-    updater.start_polling()
-    updater.idle()

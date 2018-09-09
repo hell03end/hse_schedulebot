@@ -67,6 +67,7 @@ class Lecturers(BaseModel):
     lecturer_id = IntegerField(unique=True)
     fio = CharField(index=True)
     chair = CharField()
+    update_dt = DateTimeField(default=datetime.now)
     lessons = ForeignKeyField(
         Lessons,
         field="id",
